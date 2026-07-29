@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Spinner contents. The `*_values` arrays hold the exact wire values from
+  docs/API.md; the display arrays are the human labels. Index positions MUST
+  stay aligned between each pair.
+-->
+<resources>
+    <string-array name="visit_status_values">
+        <item>visited</item>
+        <item>not_available</item>
+        <item>promise</item>
+        <item>paid</item>
+        <item>ots</item>
+        <item>legal</item>
+        <item>skip</item>
+        <item>untraceable</item>
+    </string-array>
+    <string-array name="visit_status_labels">
+        <item>Visited</item>
+        <item>Not available</item>
+        <item>Promise to pay</item>
+        <item>Paid</item>
+        <item>OTS proposal</item>
+        <item>Legal action</item>
+        <item>Skip</item>
+        <item>Untraceable</item>
+    </string-array>
+
+    <string-array name="recovery_possibility_values">
+        <item></item>
+        <item>high</item>
+        <item>medium</item>
+        <item>low</item>
+        <item>nil</item>
+    </string-array>
+    <string-array name="recovery_possibility_labels">
+        <item>Not assessed</item>
+        <item>High</item>
+        <item>Medium</item>
+        <item>Low</item>
+        <item>Nil</item>
+    </string-array>
+
+    <string-array name="payment_mode_values">
+        <item>cash</item>
+        <item>transfer</item>
+        <item>upi</item>
+        <item>cheque</item>
+        <item>dd</item>
+        <item>other</item>
+    </string-array>
+    <string-array name="payment_mode_labels">
+        <item>Cash</item>
+        <item>Bank transfer</item>
+        <item>UPI</item>
+        <item>Cheque</item>
+        <item>Demand draft</item>
+        <item>Other</item>
+    </string-array>
+</resources>

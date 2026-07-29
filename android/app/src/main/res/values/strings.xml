@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  All user-facing text. Kept in one file so the app can be translated (Hindi,
+  Bhojpuri, Maithili...) by copying this into values-hi/ etc. without touching
+  any Kotlin. The *_values arrays in arrays.xml hold the wire values and must
+  NOT be translated.
+-->
+<resources>
+    <string name="app_name">LRMS</string>
+    <string name="app_tagline">Loan Recovery Management System</string>
+
+    <!-- The real Google Maps key is delivered by the server at runtime
+         (config.maps_api_key). This placeholder exists only because the manifest
+         meta-data tag requires a value; empty simply disables the native map. -->
+    <string name="maps_api_key_placeholder" translatable="false"></string>
+
+    <!-- ============================ splash ============================ -->
+    <string name="splash_connecting">Connecting to your server…</string>
+    <string name="splash_no_server">No server address is set on this device yet.</string>
+    <string name="maintenance_title">System under maintenance</string>
+    <string name="update_required_title">Update required</string>
+    <string name="update_required_body">This version of the app is no longer supported. Please install the latest build to continue.</string>
+    <string name="download_update">Download update</string>
+    <string name="close">Close</string>
+
+    <!-- ============================ login ============================= -->
+    <string name="login_title">Sign in</string>
+    <string name="server_url_label">Server URL</string>
+    <string name="server_url_helper">Ask your administrator for this address. It is saved on this device only.</string>
+    <string name="server_url">Server URL</string>
+    <string name="identifier_label">Mobile, email or employee code</string>
+    <string name="identifier">Mobile, email or employee code</string>
+    <string name="password_label">Password</string>
+    <string name="password">Password</string>
+    <string name="otp_label">One-time password</string>
+    <string name="otp">One-time password</string>
+    <string name="use_otp">Use OTP</string>
+    <string name="use_password">Use password</string>
+    <string name="sign_in">Sign in</string>
+    <string name="sign_in_otp">Sign in with OTP</string>
+    <string name="sign_in_password">Sign in with password</string>
+    <string name="request_otp">Send OTP</string>
+    <string name="send_otp">Send OTP</string>
+    <string name="verify_otp">Verify and sign in</string>
+    <string name="resend_otp">Resend OTP</string>
+    <string name="resend_in">Resend in %1$d s</string>
+    <string name="register_prompt">Have an invitation code? Register</string>
+    <string name="have_invite">Have an invitation code? Register</string>
+    <string name="err_no_server_url">Enter your server URL first.</string>
+
+    <!-- ========================== register ============================ -->
+    <string name="register_title">Create your account</string>
+    <string name="create_account">Create account</string>
+    <string name="invite_code_label">Invitation code</string>
+    <string name="invite_code">Invitation code</string>
+    <string name="validate_code">Check code</string>
+    <string name="continue_label">Continue</string>
+    <string name="full_name_label">Full name</string>
+    <string name="full_name">Full name</string>
+    <string name="mobile_label">Mobile number</string>
+    <string name="mobile">Mobile number</string>
+    <string name="email_label">Email (optional)</string>
+    <string name="email_optional">Email (optional)</string>
+    <string name="employee_code_label">Employee / BC code (optional)</string>
+    <string name="employee_code_optional">Employee / BC code (optional)</string>
+    <string name="complete_registration">Complete registration</string>
+    <string name="account_pending_title">Waiting for approval</string>
+    <string name="open_signup_disabled">Open sign-up is disabled. A new account needs an invitation code from an administrator.</string>
+
+    <!-- ========================== dashboard =========================== -->
+    <string name="dashboard">Dashboard</string>
+    <string name="dashboard_title">Dashboard</string>
+    <string name="tile_assigned">Assigned accounts</string>
+    <string name="tile_visited_today">Visited today</string>
+    <string name="tile_pending_today">Pending today</string>
+    <string name="tile_promises">Promises</string>
+    <string name="tile_ots">OTS proposals</string>
+    <string name="tile_recovery_today">Recovery today</string>
+    <string name="tile_recovery_month">Recovery this month</string>
+    <string name="tile_target">Monthly target</string>
+    <string name="tile_target_pct">Target achieved</string>
+    <string name="tile_followups">Follow-ups due</string>
+    <string name="assigned_accounts">Assigned accounts</string>
+    <string name="visited_today">Visited today</string>
+    <string name="pending_today">Pending today</string>
+    <string name="promises">Promises</string>
+    <string name="recovery_today">Recovery today</string>
+    <string name="recovery_month">Recovery this month</string>
+    <string name="target_achieved">Target achieved</string>
+    <string name="followups_due">Follow-ups due</string>
+    <string name="check_in">Check in</string>
+    <string name="check_out">Check out</string>
+    <string name="my_accounts">My accounts</string>
+    <string name="sync_now">Sync now</string>
+
+    <!-- ======================= bottom navigation ====================== -->
+    <string name="nav_home">Home</string>
+    <string name="nav_customers">Accounts</string>
+    <string name="nav_queue">Queue</string>
+    <string name="nav_settings">Settings</string>
+
+    <!-- ========================== customers =========================== -->
+    <string name="customers_title">My accounts</string>
+    <string name="customer_detail_title">Account</string>
+    <string name="search_hint">Account no, CIF, name or village</string>
+    <string name="no_customers">No accounts match. Pull down to refresh, or clear the search.</string>
+    <string name="no_visits">No visits recorded for this account yet.</string>
+    <string name="start_visit">Start visit</string>
+    <string name="record_recovery">Record recovery</string>
+    <string name="call_customer">Call</string>
+    <string name="visit_history">Visit history</string>
+
+    <!-- ========================== visit form ========================== -->
+    <string name="visit_title">Visit form</string>
+    <string name="visit_form">Visit form</string>
+    <string name="gps_section">GPS verification</string>
+    <string name="gps_acquiring">Acquiring GPS fix…</string>
+    <string name="gps_ok">GPS locked: %1$.5f, %2$.5f  (accuracy %3$.0f m)</string>
+    <string name="gps_blocked_null">GPS returned 0,0 which is not a real position. Move outdoors and wait for a fix.</string>
+    <string name="gps_required_message">GPS is mandatory for a visit. Turn on location and wait for a fix before submitting.</string>
+    <string name="mock_gps_blocked">A mock/fake GPS app was detected. Turn off mock locations in Developer Options.</string>
+    <string name="visit_status_label">Visit status</string>
+    <string name="visit_status">Visit status</string>
+    <string name="customer_available_label">Customer available</string>
+    <string name="customer_available">Customer available</string>
+    <string name="house_locked_label">House locked</string>
+    <string name="house_locked">House locked</string>
+    <string name="met_person_label">Person met</string>
+    <string name="met_person">Person met</string>
+    <string name="met_relation_label">Relation</string>
+    <string name="met_relation">Relation</string>
+    <string name="occupation_label">Occupation observed</string>
+    <string name="occupation">Occupation observed</string>
+    <string name="recovery_possibility_label">Recovery possibility</string>
+    <string name="recovery_possibility">Recovery possibility</string>
+    <string name="promise_amount_label">Promised amount</string>
+    <string name="promise_amount">Promised amount</string>
+    <string name="promise_date_label">Promised date (YYYY-MM-DD)</string>
+    <string name="promise_date">Promised date</string>
+    <string name="recommendation_label">Recommendation</string>
+    <string name="recommendation">Recommendation</string>
+    <string name="remarks_label">Remarks</string>
+    <string name="remarks">Remarks</string>
+    <string name="photos_section">Photo evidence</string>
+    <string name="photos_label">Photos</string>
+    <string name="add_photo">Add photo</string>
+    <string name="signature_section">Customer / witness signature</string>
+    <string name="signature">Customer signature</string>
+    <string name="clear_signature">Clear</string>
+    <string name="submit_visit">Submit visit</string>
+    <string name="submit">Submit</string>
+    <string name="photo_required_msg">At least %1$d photo(s) are required for a visit.</string>
+    <string name="promise_fields_required">A "Promise to pay" visit needs both an amount and a date.</string>
+    <string name="err_no_camera_app">No camera app was found on this device.</string>
+    <string name="err_photo_save">The photo could not be saved. Check that the device has free storage.</string>
+    <string name="err_permission_location">Location permission is required to record a GPS-verified visit.</string>
+    <string name="permission_location_needed">Location permission is required to record a GPS-verified visit.</string>
+    <string name="permission_camera_needed">Camera permission is required to capture visit photos.</string>
+
+    <!-- ========================== recovery ============================ -->
+    <string name="recovery_title">Record collection</string>
+    <string name="amount_label">Amount collected</string>
+    <string name="amount">Amount collected</string>
+    <string name="payment_mode_label">Payment mode</string>
+    <string name="payment_mode">Payment mode</string>
+    <string name="txn_reference_label">Transaction reference</string>
+    <string name="txn_reference">Transaction reference</string>
+    <string name="txn_reference_help">Required for everything except cash (UTR, UPI reference or cheque number).</string>
+    <string name="receipt_number_label">Receipt number (blank = auto-generate)</string>
+    <string name="receipt_number_optional">Receipt number (blank = auto-generate)</string>
+    <string name="receipt_photo">Receipt photo</string>
+    <string name="attach_receipt">Attach receipt photo</string>
+    <string name="save_recovery">Save collection</string>
+    <string name="save">Save</string>
+
+    <!-- ========================= attendance =========================== -->
+    <string name="attendance_title">Attendance</string>
+    <string name="attendance">Attendance</string>
+    <string name="take_selfie">Take selfie</string>
+
+    <!-- ========================= sync queue =========================== -->
+    <string name="queue_title">Sync queue</string>
+    <string name="sync_queue">Sync queue</string>
+    <string name="queue_empty">Nothing waiting to sync. Everything has reached the server.</string>
+    <string name="retry_all">Retry all</string>
+    <string name="queued_offline">No connection. Saved to the sync queue and it will upload automatically.</string>
+    <string name="offline_saved">No connection. Saved to the sync queue and it will upload automatically.</string>
+
+    <!-- ========================== settings ============================ -->
+    <string name="settings_title">Settings</string>
+    <string name="settings">Settings</string>
+    <string name="logout">Sign out</string>
+    <string name="app_version">App version</string>
+    <string name="device_id">Device ID</string>
+
+    <!-- =========================== generic =========================== -->
+    <string name="retry">Retry</string>
+    <string name="cancel">Cancel</string>
+    <string name="ok">OK</string>
+    <string name="loading">Loading…</string>
+</resources>

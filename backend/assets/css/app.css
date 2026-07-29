@@ -1,0 +1,347 @@
+/* =====================================================================
+   LRMS admin panel styles
+   ---------------------------------------------------------------------
+   Bootstrap 5.3 does the heavy lifting; this file only adds the shell
+   layout, the bank-green brand colours and a few table/tile helpers.
+   Mobile first: the sidebar becomes an offcanvas drawer below 992px, so
+   the whole panel is usable from a phone.
+   ===================================================================== */
+
+:root {
+    --lrms-green: #0d5c46;
+    --lrms-green-dark: #0a4433;
+    --lrms-green-light: #12775c;
+    --lrms-mint: #7ce9bd;
+    --lrms-sidebar-width: 244px;
+    --lrms-topbar-height: 56px;
+}
+
+body {
+    background: #f2f5f7;
+    font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------------- shell */
+.lrms-topbar {
+    background: linear-gradient(90deg, var(--lrms-green-dark), var(--lrms-green-light));
+    min-height: var(--lrms-topbar-height);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, .16);
+    z-index: 1035;
+}
+
+.lrms-topbar .navbar-brand,
+.lrms-topbar .navbar-brand span {
+    color: #fff;
+}
+
+.lrms-shell {
+    display: flex;
+    align-items: flex-start;
+    min-height: calc(100vh - var(--lrms-topbar-height));
+}
+
+.lrms-main {
+    flex: 1 1 auto;
+    min-width: 0;
+    padding: 1rem 1rem 3rem;
+}
+
+@media (min-width: 992px) {
+    .lrms-main {
+        padding: 1.25rem 1.5rem 3rem;
+    }
+}
+
+/* -------------------------------------------------------------- sidebar */
+.lrms-sidebar {
+    background: var(--lrms-green-dark);
+    color: rgba(255, 255, 255, .82);
+    width: var(--lrms-sidebar-width);
+}
+
+@media (min-width: 992px) {
+    .lrms-sidebar {
+        position: sticky;
+        top: var(--lrms-topbar-height);
+        height: calc(100vh - var(--lrms-topbar-height));
+        overflow-y: auto;
+        flex: 0 0 var(--lrms-sidebar-width);
+    }
+}
+
+.lrms-nav {
+    display: flex;
+    flex-direction: column;
+    padding: .5rem 0 1rem;
+    min-height: 100%;
+}
+
+.lrms-nav-group {
+    padding: 1rem 1.1rem .35rem;
+    font-size: .68rem;
+    letter-spacing: .09em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, .45);
+    font-weight: 600;
+}
+
+.lrms-nav-link {
+    display: flex;
+    align-items: center;
+    gap: .7rem;
+    padding: .6rem 1.1rem;
+    color: rgba(255, 255, 255, .82);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+    transition: background-color .12s ease, color .12s ease;
+}
+
+.lrms-nav-link i {
+    font-size: 1.05rem;
+    width: 1.1rem;
+    text-align: center;
+}
+
+.lrms-nav-link:hover,
+.lrms-nav-link:focus-visible {
+    background: rgba(255, 255, 255, .08);
+    color: #fff;
+}
+
+.lrms-nav-link.active {
+    background: rgba(124, 233, 189, .14);
+    border-left-color: var(--lrms-mint);
+    color: #fff;
+    font-weight: 600;
+}
+
+.lrms-nav-footer {
+    margin-top: auto;
+    padding: 1rem 1.1rem 0;
+    border-top: 1px solid rgba(255, 255, 255, .12);
+    color: rgba(255, 255, 255, .75);
+}
+
+/* ------------------------------------------------------------- headings */
+.lrms-page-head {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+
+.lrms-page-head h1 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    margin: 0;
+}
+
+.lrms-page-head .lrms-page-sub {
+    font-size: .82rem;
+    color: #6b7280;
+}
+
+/* ---------------------------------------------------------------- tiles */
+.lrms-tile {
+    background: #fff;
+    border: 1px solid #e4e8ec;
+    border-radius: .6rem;
+    padding: .85rem 1rem;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    gap: .85rem;
+}
+
+.lrms-tile-icon {
+    flex: 0 0 auto;
+    width: 42px;
+    height: 42px;
+    border-radius: .5rem;
+    display: grid;
+    place-items: center;
+    font-size: 1.2rem;
+    background: rgba(13, 92, 70, .1);
+    color: var(--lrms-green);
+}
+
+.lrms-tile-value {
+    font-size: 1.32rem;
+    font-weight: 700;
+    line-height: 1.1;
+    color: #16202a;
+}
+
+.lrms-tile-label {
+    font-size: .74rem;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+    color: #6b7280;
+    font-weight: 600;
+}
+
+.lrms-tile.tone-blue .lrms-tile-icon { background: rgba(13, 110, 253, .1); color: #0d6efd; }
+.lrms-tile.tone-amber .lrms-tile-icon { background: rgba(255, 159, 10, .14); color: #b26a00; }
+.lrms-tile.tone-red .lrms-tile-icon { background: rgba(220, 53, 69, .12); color: #dc3545; }
+.lrms-tile.tone-purple .lrms-tile-icon { background: rgba(111, 66, 193, .12); color: #6f42c1; }
+.lrms-tile.tone-teal .lrms-tile-icon { background: rgba(32, 201, 151, .14); color: #0f8f6c; }
+
+/* ---------------------------------------------------------------- cards */
+.card {
+    border: 1px solid #e4e8ec;
+    border-radius: .6rem;
+}
+
+.card-header {
+    background: #fff;
+    border-bottom: 1px solid #eef1f4;
+    font-weight: 600;
+    font-size: .92rem;
+    padding: .7rem 1rem;
+}
+
+/* --------------------------------------------------------------- tables */
+.table-lrms {
+    font-size: .86rem;
+    margin-bottom: 0;
+}
+
+.table-lrms > thead > tr > th {
+    background: #f7f9fa;
+    color: #475467;
+    font-size: .72rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    font-weight: 600;
+    white-space: nowrap;
+    border-bottom: 1px solid #e4e8ec;
+}
+
+.table-lrms > tbody > tr > td {
+    vertical-align: middle;
+}
+
+.table-responsive {
+    /* Long portfolio tables scroll horizontally on a phone instead of
+       squashing the columns into unreadable slivers. */
+    -webkit-overflow-scrolling: touch;
+}
+
+.lrms-num {
+    font-variant-numeric: tabular-nums;
+    text-align: right;
+    white-space: nowrap;
+}
+
+/* --------------------------------------------------------------- badges */
+.badge-soft {
+    font-weight: 600;
+    font-size: .7rem;
+    padding: .32em .6em;
+    border-radius: .35rem;
+}
+
+.badge-soft.bg-success { background: rgba(25, 135, 84, .13) !important; color: #146c43 !important; }
+.badge-soft.bg-warning { background: rgba(255, 193, 7, .18) !important; color: #997404 !important; }
+.badge-soft.bg-danger  { background: rgba(220, 53, 69, .13) !important; color: #b02a37 !important; }
+.badge-soft.bg-info    { background: rgba(13, 202, 240, .15) !important; color: #087990 !important; }
+.badge-soft.bg-primary { background: rgba(13, 110, 253, .12) !important; color: #0a58ca !important; }
+.badge-soft.bg-secondary { background: rgba(108, 117, 125, .14) !important; color: #495057 !important; }
+.badge-soft.bg-dark    { background: rgba(33, 37, 41, .12) !important; color: #212529 !important; }
+.badge-soft.bg-orange  { background: rgba(253, 126, 20, .15) !important; color: #b35309 !important; }
+
+/* ------------------------------------------------------- auth (login) */
+.lrms-auth {
+    min-height: 100vh;
+    display: grid;
+    place-items: center;
+    padding: 1.5rem 1rem;
+    background: linear-gradient(160deg, var(--lrms-green-dark), #05261c 65%, #041a13);
+}
+
+.lrms-auth-card {
+    width: 100%;
+    max-width: 420px;
+    background: #fff;
+    border-radius: .8rem;
+    box-shadow: 0 18px 48px rgba(0, 0, 0, .28);
+    overflow: hidden;
+}
+
+.lrms-auth-head {
+    text-align: center;
+    padding: 1.75rem 1.5rem .5rem;
+}
+
+.lrms-auth-head img {
+    width: 68px;
+    height: 68px;
+}
+
+.lrms-auth-body {
+    padding: .75rem 1.5rem 1.75rem;
+}
+
+/* ------------------------------------------------------------ utilities */
+.lrms-photo-thumb {
+    width: 68px;
+    height: 68px;
+    object-fit: cover;
+    border-radius: .4rem;
+    border: 1px solid #dde2e6;
+}
+
+.lrms-map {
+    width: 100%;
+    height: 480px;
+    border-radius: .5rem;
+    background: #e9eef1;
+    display: grid;
+    place-items: center;
+    color: #6b7280;
+    font-size: .88rem;
+    text-align: center;
+    padding: 1rem;
+}
+
+.lrms-empty {
+    text-align: center;
+    padding: 2.5rem 1rem;
+    color: #6b7280;
+}
+
+.lrms-empty i {
+    font-size: 2.2rem;
+    display: block;
+    margin-bottom: .5rem;
+    opacity: .5;
+}
+
+.form-label {
+    font-weight: 600;
+    font-size: .82rem;
+    margin-bottom: .25rem;
+    color: #344054;
+}
+
+.form-text {
+    font-size: .76rem;
+}
+
+.sticky-actions {
+    position: sticky;
+    bottom: 0;
+    background: #fff;
+    border-top: 1px solid #e4e8ec;
+    padding: .75rem 1rem;
+    margin: 1rem -1rem -1rem;
+}
+
+@media print {
+    .lrms-topbar, .lrms-sidebar, .sticky-actions, .btn, .alert-dismissible .btn-close {
+        display: none !important;
+    }
+    .lrms-main { padding: 0 !important; }
+    body { background: #fff; }
+}

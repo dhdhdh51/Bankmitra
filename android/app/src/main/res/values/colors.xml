@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Bank-style green/teal palette, matching the admin panel and the app logo. -->
+<resources>
+    <color name="brand_green">#0D5C46</color>
+    <color name="brand_green_dark">#0A4433</color>
+    <color name="brand_green_light">#12775C</color>
+    <color name="brand_mint">#7CE9BD</color>
+    <color name="brand_mint_pale">#E6FBF3</color>
+
+    <!-- Aliases kept so either naming style resolves. -->
+    <color name="lrms_green">#0D5C46</color>
+    <color name="lrms_green_dark">#0A4433</color>
+    <color name="lrms_green_light">#12775C</color>
+    <color name="lrms_mint">#7CE9BD</color>
+
+    <color name="surface">#FFFFFFFF</color>
+    <color name="surface_muted">#F2F5F7</color>
+    <color name="lrms_surface">#F2F5F7</color>
+    <color name="divider">#E4E8EC</color>
+
+    <color name="text_primary">#16202A</color>
+    <color name="text_secondary">#6B7280</color>
+    <color name="lrms_on_surface">#16202A</color>
+    <color name="lrms_muted">#6B7280</color>
+
+    <color name="status_ok">#146C43</color>
+    <color name="status_warn">#B26A00</color>
+    <color name="status_bad">#B3261E</color>
+    <color name="lrms_success">#146C43</color>
+    <color name="lrms_warning">#B26A00</color>
+    <color name="lrms_danger">#DC3545</color>
+
+    <color name="white">#FFFFFFFF</color>
+    <color name="black">#FF000000</color>
+
+    <!-- Adaptive launcher icon background. -->
+    <color name="ic_launcher_background">#0A4433</color>
+</resources>

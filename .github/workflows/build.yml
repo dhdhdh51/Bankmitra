@@ -1,0 +1,286 @@
+# =====================================================================
+# LRMS - Android APK build
+# =====================================================================
+# WHAT THIS DOES, IN PLAIN WORDS
+# ------------------------------
+#  * Every push builds an APK and attaches it to the run, so you can download
+#    and install it from the GitHub mobile app or a browser.
+#  * If you have added the four signing secrets, it builds a SIGNED RELEASE APK.
+#  * If you have NOT added them, it builds a DEBUG APK instead. The build does
+#    NOT fail just because the secrets are missing - that is deliberate, so you
+#    can get a testable APK on day one.
+#  * Pushing a tag like  v1.0.0  also creates a GitHub Release with the APK
+#    attached.
+#
+# WHERE TO FIND THE APK
+# ---------------------
+#  GitHub -> Actions -> click the newest run -> scroll to "Artifacts".
+#  The run summary also prints the variant, version and file size.
+#
+# THE FOUR OPTIONAL SECRETS  (Settings -> Secrets and variables -> Actions)
+# ------------------------------------------------------------------------
+#  KEYSTORE_BASE64     your .jks file, base64 encoded, all on one line
+#  KEY_STORE_PASSWORD  the keystore password
+#  KEY_ALIAS           the key alias inside the keystore
+#  KEY_PASSWORD        the password of that key
+#
+#  Create a keystore and encode it (run once, on any machine with a JDK):
+#    keytool -genkeypair -v -keystore lrms.jks -alias lrms \
+#            -keyalg RSA -keysize 2048 -validity 10000
+#    base64 -w 0 lrms.jks > lrms.jks.b64      # Linux
+#    base64 -i lrms.jks -o lrms.jks.b64       # macOS
+#  Paste the CONTENTS of lrms.jks.b64 into KEYSTORE_BASE64.
+#  KEEP lrms.jks SAFE AND OFFLINE. Losing it means you can never update an
+#  app already installed from a release built with it.
+#
+# VERSIONS USED HERE
+# ------------------
+# The action versions and the Android toolchain were checked against the live
+# registries rather than copied from a template. See android/README.md for the
+# full matrix and the reason behind each choice.
+# =====================================================================
+
+name: Build Android APK
+
+on:
+  push:
+    branches: ['**']
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+# Needed so the tag build can create a Release. Everything else is read-only.
+permissions:
+  contents: write
+
+# A newer push to the same branch cancels the older, still-running build.
+concurrency:
+  group: android-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build APK
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+
+    # The Gradle project lives in the android/ subfolder of this repository.
+    defaults:
+      run:
+        working-directory: android
+
+    steps:
+      # ---------------------------------------------------------------
+      # 1. Source
+      # ---------------------------------------------------------------
+      - name: Checkout repository
+        uses: actions/checkout@v7.0.1
+
+      # ---------------------------------------------------------------
+      # 2. Java 17 (required by Android Gradle Plugin 9.x)
+      # ---------------------------------------------------------------
+      - name: Set up JDK 17
+        uses: actions/setup-java@v5.6.0
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      # ---------------------------------------------------------------
+      # 3. Gradle, with dependency caching between runs
+      # ---------------------------------------------------------------
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@v6.2.0
+        with:
+          cache-read-only: ${{ github.ref != format('refs/heads/{0}', github.event.repository.default_branch) }}
+
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
+      # ---------------------------------------------------------------
+      # 4. Do the signing secrets exist?
+      #
+      # `secrets.*` cannot be used in a job-level `if:`, so the check happens
+      # here in a step and the answer is published as a step output that the
+      # later steps read.
+      # ---------------------------------------------------------------
+      - name: Detect signing secrets
+        id: signing
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ] && [ -n "$KEY_STORE_PASSWORD" ] \
+             && [ -n "$KEY_ALIAS" ] && [ -n "$KEY_PASSWORD" ]; then
+            echo "available=true"    >> "$GITHUB_OUTPUT"
+            echo "variant=release"   >> "$GITHUB_OUTPUT"
+            echo "task=assembleRelease" >> "$GITHUB_OUTPUT"
+            echo "All four signing secrets are present -> building a SIGNED RELEASE APK."
+          else
+            echo "available=false"   >> "$GITHUB_OUTPUT"
+            echo "variant=debug"     >> "$GITHUB_OUTPUT"
+            echo "task=assembleDebug" >> "$GITHUB_OUTPUT"
+            echo "Signing secrets are missing -> building a DEBUG APK instead."
+            echo "This is not an error. Add the secrets when you are ready to publish."
+          fi
+
+      # ---------------------------------------------------------------
+      # 5. Recreate the keystore (only when the secrets exist)
+      #
+      # app/build.gradle.kts looks for android/keystore.properties. When that
+      # file is absent it configures NO release signing config at all, which is
+      # why the debug fallback works.
+      # ---------------------------------------------------------------
+      - name: Decode keystore and write keystore.properties
+        if: steps.signing.outputs.available == 'true'
+        env:
+          KEYSTORE_BASE64: ${{ secrets.KEYSTORE_BASE64 }}
+          KEY_STORE_PASSWORD: ${{ secrets.KEY_STORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          printf '%s' "$KEYSTORE_BASE64" | base64 -d > app/keystore.jks
+
+          if [ ! -s app/keystore.jks ]; then
+            echo "::error::KEYSTORE_BASE64 did not decode to a file. Re-encode with 'base64 -w 0 your.jks'."
+            exit 1
+          fi
+
+          # storeFile is resolved relative to the android/ project root.
+          {
+            echo "storeFile=app/keystore.jks"
+            echo "storePassword=$KEY_STORE_PASSWORD"
+            echo "keyAlias=$KEY_ALIAS"
+            echo "keyPassword=$KEY_PASSWORD"
+          } > keystore.properties
+
+          echo "Keystore restored ($(stat -c%s app/keystore.jks) bytes)."
+
+      # ---------------------------------------------------------------
+      # 6. Read versionName/versionCode out of the Gradle file so the APK
+      #    filename is meaningful.
+      # ---------------------------------------------------------------
+      - name: Read app version
+        id: version
+        run: |
+          set -euo pipefail
+          NAME=$(grep -m1 'versionName *=' app/build.gradle.kts | sed 's/.*"\(.*\)".*/\1/')
+          CODE=$(grep -m1 'versionCode *=' app/build.gradle.kts | tr -dc '0-9')
+          echo "name=${NAME:-0.0.0}" >> "$GITHUB_OUTPUT"
+          echo "code=${CODE:-0}"     >> "$GITHUB_OUTPUT"
+          echo "versionName=${NAME}  versionCode=${CODE}"
+
+      # ---------------------------------------------------------------
+      # 7. Build
+      # ---------------------------------------------------------------
+      - name: Build ${{ steps.signing.outputs.variant }} APK
+        run: ./gradlew ${{ steps.signing.outputs.task }} --stacktrace
+
+      # ---------------------------------------------------------------
+      # 8. Find whatever APK was produced and give it a clear name.
+      #    Without signing secrets an assembleRelease would produce
+      #    "app-release-unsigned.apk", so the glob is deliberately broad.
+      # ---------------------------------------------------------------
+      - name: Collect and rename the APK
+        id: apk
+        run: |
+          set -euo pipefail
+          mkdir -p ../dist
+
+          FOUND=$(find app/build/outputs/apk -name '*.apk' -type f | head -1)
+          if [ -z "$FOUND" ]; then
+            echo "::error::The build reported success but no .apk was found under app/build/outputs/apk."
+            find app/build/outputs -type f | head -50
+            exit 1
+          fi
+
+          FINAL="LRMS-${{ steps.version.outputs.name }}-${{ steps.signing.outputs.variant }}-${{ github.run_number }}.apk"
+          cp "$FOUND" "../dist/$FINAL"
+
+          SIZE_BYTES=$(stat -c%s "../dist/$FINAL")
+          SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $SIZE_BYTES/1048576}")
+
+          echo "path=dist/$FINAL"    >> "$GITHUB_OUTPUT"
+          echo "name=$FINAL"         >> "$GITHUB_OUTPUT"
+          echo "size_mb=$SIZE_MB"    >> "$GITHUB_OUTPUT"
+          echo "source=$FOUND"       >> "$GITHUB_OUTPUT"
+          echo "Produced $FINAL ($SIZE_MB MB) from $FOUND"
+
+      # ---------------------------------------------------------------
+      # 9. Always publish the APK as a run artifact.
+      # ---------------------------------------------------------------
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: ${{ steps.apk.outputs.name }}
+          path: ${{ steps.apk.outputs.path }}
+          if-no-files-found: error
+          retention-days: 30
+
+      # ---------------------------------------------------------------
+      # 10. On a v* tag, also attach the APK to a GitHub Release.
+      # ---------------------------------------------------------------
+      - name: Publish GitHub Release
+        if: startsWith(github.ref, 'refs/tags/v')
+        uses: softprops/action-gh-release@v3.0.2
+        with:
+          files: ${{ steps.apk.outputs.path }}
+          generate_release_notes: true
+          name: LRMS ${{ github.ref_name }}
+          body: |
+            ### LRMS Android app — ${{ github.ref_name }}
+
+            | | |
+            |---|---|
+            | Variant | `${{ steps.signing.outputs.variant }}` |
+            | Version | `${{ steps.version.outputs.name }}` (code `${{ steps.version.outputs.code }}`) |
+            | Size | ${{ steps.apk.outputs.size_mb }} MB |
+            | Build | #${{ github.run_number }} |
+
+            Download the `.apk` below and install it on the handset
+            (Settings → allow installing from unknown sources).
+
+            After installing, open the app and enter your **server URL** on the
+            login screen — the app is not tied to any single deployment.
+
+      # ---------------------------------------------------------------
+      # 11. Human-readable summary, visible in the GitHub mobile app.
+      # ---------------------------------------------------------------
+      - name: Write build summary
+        if: always()
+        run: |
+          {
+            echo "## LRMS Android build"
+            echo ""
+            echo "| Item | Value |"
+            echo "| --- | --- |"
+            echo "| Variant | \`${{ steps.signing.outputs.variant }}\` |"
+            echo "| Gradle task | \`${{ steps.signing.outputs.task }}\` |"
+            echo "| Version name | \`${{ steps.version.outputs.name }}\` |"
+            echo "| Version code | \`${{ steps.version.outputs.code }}\` |"
+            echo "| APK | \`${{ steps.apk.outputs.name }}\` |"
+            echo "| Size | ${{ steps.apk.outputs.size_mb }} MB |"
+            echo "| Signed | ${{ steps.signing.outputs.available == 'true' && 'yes (release keystore)' || 'no (debug key)' }} |"
+            echo ""
+            if [ "${{ steps.signing.outputs.available }}" = "true" ]; then
+              echo "This is a **signed release** APK, suitable for distribution."
+            else
+              echo "This is a **debug** APK. It installs and runs, but it is signed with"
+              echo "the throwaway Android debug key, so it cannot be published to the Play"
+              echo "Store and cannot upgrade an app installed from a release build."
+              echo ""
+              echo "Add the \`KEYSTORE_BASE64\`, \`KEY_STORE_PASSWORD\`, \`KEY_ALIAS\` and"
+              echo "\`KEY_PASSWORD\` repository secrets to get a signed release instead."
+            fi
+            echo ""
+            echo "**Download:** open this run and scroll to the *Artifacts* section."
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ---------------------------------------------------------------
+      # 12. Never leave signing material on the runner.
+      # ---------------------------------------------------------------
+      - name: Remove signing material
+        if: always()
+        run: rm -f app/keystore.jks keystore.properties

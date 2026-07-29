@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Never back up the session token or the offline queue: the token is bound to a
+  single device_id server-side, and restoring a queue onto another handset would
+  submit visits with someone else's GPS history.
+-->
+<full-backup-content>
+    <exclude domain="sharedpref" path="lrms_session.xml" />
+    <exclude domain="sharedpref" path="lrms_session_plain.xml" />
+    <exclude domain="database" path="lrms_queue.db" />
+</full-backup-content>

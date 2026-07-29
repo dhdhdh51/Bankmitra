@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Camera captures are written into the app's own cache/files directories and
+     shared with the camera app through the FileProvider declared in the
+     manifest. Nothing is written to shared external storage. -->
+<paths>
+    <cache-path name="lrms_cache" path="." />
+    <files-path name="lrms_files" path="." />
+    <external-files-path name="lrms_photos" path="Pictures" />
+    <external-cache-path name="lrms_ext_cache" path="." />
+</paths>

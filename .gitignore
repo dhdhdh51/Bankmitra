@@ -1,0 +1,67 @@
+# =====================================================================
+# LRMS - repository-wide ignores
+# =====================================================================
+
+# ---------------------------------------------------------------------
+# SECRETS - never commit these
+# ---------------------------------------------------------------------
+# Real database credentials and the AES app_key.
+backend/config/config.php
+
+# Android signing material.
+android/local.properties
+android/keystore.properties
+android/app/keystore.jks
+*.jks
+*.keystore
+*.jks.b64
+
+# Firebase service account / google-services.json
+android/app/google-services.json
+**/service-account*.json
+
+# ---------------------------------------------------------------------
+# Runtime data written by the application
+# ---------------------------------------------------------------------
+backend/storage/logs/*
+!backend/storage/logs/.gitkeep
+backend/storage/cache/*
+!backend/storage/cache/.gitkeep
+backend/storage/backups/*
+!backend/storage/backups/.gitkeep
+
+# Uploaded evidence, imported spreadsheets and generated thumbnails.
+# The folder structure is kept, the contents are not.
+backend/uploads/visits/*
+backend/uploads/attendance/*
+backend/uploads/excel/*
+backend/uploads/temp/*
+!backend/uploads/**/.gitkeep
+!backend/uploads/.htaccess
+
+# ---------------------------------------------------------------------
+# Build output
+# ---------------------------------------------------------------------
+android/build/
+android/app/build/
+android/.gradle/
+android/.kotlin/
+build/
+.gradle/
+
+# ---------------------------------------------------------------------
+# Editors and OS noise
+# ---------------------------------------------------------------------
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+*.swp
+*~
+
+# ---------------------------------------------------------------------
+# Scratch
+# ---------------------------------------------------------------------
+scratch/
+*.log

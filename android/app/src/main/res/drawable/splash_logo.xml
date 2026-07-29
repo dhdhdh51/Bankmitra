@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  Vector version of branding/logo.svg.
+
+  Kept in the original 512x512 coordinate space so the paths are a 1:1 copy of
+  the SVG and the two files can be diffed by eye. The SVG's two linear
+  gradients are flattened to their mid-tones: VectorDrawable gradients need
+  API 24+ (which we have) but solid fills render identically at launcher and
+  splash sizes and keep this file trivially reviewable.
+
+  Used by SplashActivity and by the logo at the top of LoginActivity.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="160dp"
+    android:height="160dp"
+    android:viewportWidth="512"
+    android:viewportHeight="512">
+
+    <!-- shield body -->
+    <path
+        android:fillColor="#12775C"
+        android:pathData="M256,26L74,92v168c0,96 74,175 182,226 108,-51 182,-130 182,-226V92L256,26z" />
+
+    <!-- inner bevel -->
+    <path
+        android:strokeColor="#7CE9BD"
+        android:strokeAlpha="0.45"
+        android:strokeWidth="9"
+        android:fillColor="#00000000"
+        android:pathData="M256,62L108,116v144c0,80 61,147 148,191 87,-44 148,-111 148,-191V116L256,62z" />
+
+    <!-- rupee mark: two horizontal bars plus the glyph -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M187,136h110a11,11 0 0 1 0,22H187a11,11 0 0 1 0,-22z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M187,182h110a11,11 0 0 1 0,22H187a11,11 0 0 1 0,-22z" />
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M198,136h48c34,0 60,22 60,52s-26,52 -60,52h-18l86,92h-46l-92,-100v-24h66c14,0 24,-8 24,-20s-10,-20 -24,-20h-44v-32z" />
+
+    <!-- rising recovery arrow -->
+    <path
+        android:fillColor="#7CE9BD"
+        android:pathData="M150,386l58,-58 40,40 74,-74h-38v-34h96v96h-34v-38l-98,98 -40,-40 -38,38z" />
+</vector>

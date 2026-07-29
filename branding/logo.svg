@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  LRMS placeholder logo - "recovery shield"
+  Theme: bank/finance, deep green + teal, with a rupee mark and a rising
+  recovery arrow. Replace this file with the bank's official artwork when it
+  is available; keep the same filename and the 512x512 viewBox and nothing
+  else needs to change.
+-->
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512" role="img" aria-label="LRMS logo">
+  <defs>
+    <linearGradient id="shield" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#12775c"/>
+      <stop offset="1" stop-color="#0a4433"/>
+    </linearGradient>
+    <linearGradient id="arrow" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#7ce9bd"/>
+      <stop offset="1" stop-color="#d9fff1"/>
+    </linearGradient>
+  </defs>
+
+  <!-- shield body -->
+  <path fill="url(#shield)"
+        d="M256 26 74 92v168c0 96 74 175 182 226 108-51 182-130 182-226V92L256 26z"/>
+  <!-- inner bevel -->
+  <path fill="none" stroke="#7ce9bd" stroke-opacity=".45" stroke-width="9"
+        d="M256 62 108 116v144c0 80 61 147 148 191 87-44 148-111 148-191V116L256 62z"/>
+
+  <!-- rupee mark -->
+  <g fill="#ffffff">
+    <rect x="176" y="136" width="132" height="22" rx="11"/>
+    <rect x="176" y="182" width="132" height="22" rx="11"/>
+    <path d="M198 136h48c34 0 60 22 60 52s-26 52-60 52h-18l86 92h-46l-92-100v-24h66c14 0 24-8 24-20s-10-20-24-20h-44v-32z"/>
+  </g>
+
+  <!-- rising recovery arrow -->
+  <path fill="url(#arrow)"
+        d="M150 386l58-58 40 40 74-74h-38v-34h96v96h-34v-38l-98 98-40-40-38 38z"/>
+</svg>

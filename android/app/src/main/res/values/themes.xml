@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Theme.Lrms" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="colorPrimary">@color/brand_green</item>
+        <item name="colorPrimaryDark">@color/brand_green_dark</item>
+        <item name="colorOnPrimary">@color/white</item>
+        <item name="colorPrimaryContainer">@color/brand_mint_pale</item>
+        <item name="colorOnPrimaryContainer">@color/brand_green_dark</item>
+        <item name="colorSecondary">@color/brand_green_light</item>
+        <item name="colorOnSecondary">@color/white</item>
+        <item name="colorSurface">@color/surface</item>
+        <item name="colorOnSurface">@color/text_primary</item>
+        <item name="android:colorBackground">@color/surface_muted</item>
+        <item name="colorError">@color/status_bad</item>
+        <item name="android:statusBarColor" tools:targetApi="21">@color/brand_green_dark</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="23">false</item>
+    </style>
+
+    <!-- Splash paints the brand colour edge to edge so a slow handset never
+         flashes white before the first frame. -->
+    <style name="Theme.Lrms.Splash" parent="Theme.Lrms">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+    <!-- Dashboard tiles.
+         parent="" is required: without it, AAPT infers an implicit parent from
+         the dotted name ("Widget.LRMS") which does not exist, and resource
+         linking fails. -->
+    <style name="Widget.LRMS.Tile" parent="">
+        <item name="android:background">@drawable/bg_outlined_box</item>
+        <item name="android:padding">12dp</item>
+        <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="TextAppearance.LRMS.TileValue" parent="TextAppearance.Material3.TitleLarge">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textColor">@color/text_primary</item>
+    </style>
+
+    <style name="TextAppearance.LRMS.TileLabel" parent="TextAppearance.Material3.LabelSmall">
+        <item name="android:textColor">@color/text_secondary</item>
+        <item name="android:textAllCaps">true</item>
+    </style>
+
+    <!-- Section headings inside the long visit / recovery forms -->
+    <style name="Widget.LRMS.SectionHeader" parent="TextAppearance.Material3.TitleSmall">
+        <item name="android:textColor">@color/brand_green</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:paddingTop">16dp</item>
+        <item name="android:paddingBottom">4dp</item>
+    </style>
+
+    <!-- Legacy alias names -->
+    <style name="LrmsTileValue" parent="TextAppearance.LRMS.TileValue" />
+    <style name="LrmsTileLabel" parent="TextAppearance.LRMS.TileLabel" />
+</resources>
