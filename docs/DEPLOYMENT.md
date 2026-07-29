@@ -116,7 +116,7 @@ cPanel → **phpMyAdmin** → select your database → **Import** tab →
 **Choose File** → `database/schema.sql` → **Import**.
 
 Expected result: **28 tables**, plus 2 views, plus seed data
-(4 roles, 34 permissions, 54 settings, 1 admin user).
+(4 roles, 36 permissions, 54 settings, 1 admin user).
 
 The file is safe to re-import — every statement uses `IF NOT EXISTS` /
 `INSERT IGNORE`, so nothing is destroyed.
