@@ -4,6 +4,7 @@ import android.app.Application
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.os.Build
+import androidx.appcompat.app.AppCompatDelegate
 import com.lrms.recovery.data.prefs.AppPrefs
 import com.lrms.recovery.data.prefs.SessionStore
 import com.lrms.recovery.sync.SyncScheduler
@@ -30,6 +31,14 @@ class LrmsApp : Application() {
         // First thing, before anything that could fail: capture fatal crashes to
         // a file so they can be read on the handset without a PC and logcat.
         CrashReporter.install(this)
+
+        // The app ships one light palette and no values-night/ counterpart, and
+        // many layouts name @color/text_primary and @color/surface directly. If
+        // AppCompat is allowed to follow the system into dark mode, those stay
+        // light while every Material attribute we did not override flips dark,
+        // which produced dark text on dark surfaces on any handset with dark mode
+        // enabled. Pin it. Theme.Lrms is also Light rather than DayNight.
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
 
         createNotificationChannel()
 

@@ -136,6 +136,16 @@ android {
         abortOnError = false
         checkReleaseBuilds = false
     }
+
+    testOptions {
+        unitTests {
+            // Robolectric needs the merged resources and the manifest, which is
+            // the whole point here: these tests assert things that only exist
+            // after resource merging, such as whether res/xml/file_paths.xml
+            // actually covers the directory PhotoStore writes into.
+            isIncludeAndroidResources = true
+        }
+    }
 }
 
 dependencies {
@@ -169,6 +179,17 @@ dependencies {
     // --- FIREBASE (optional, disabled by default) ----------------------
     // implementation(platform("com.google.firebase:firebase-bom:34.16.0"))
     // implementation("com.google.firebase:firebase-messaging")
+
+    // --- Tests (JVM only, no emulator) ---------------------------------
+    // Robolectric runs the real Android framework classes on the JVM, so a unit
+    // test can exercise FileProvider and inflate layouts. That matters because
+    // two shipped defects here - a splash windowBackground that could not be
+    // inflated, and a FileProvider path that did not cover the capture folder -
+    // both compiled cleanly and only failed on a handset.
+    // These are testImplementation, so nothing reaches the APK.
+    testImplementation("junit:junit:4.13.2")
+    testImplementation("org.robolectric:robolectric:4.16")
+    testImplementation("androidx.test:core:1.7.0")
 
     // NOTE: there is deliberately no Retrofit / OkHttp / Gson / Room here.
     // Networking uses HttpURLConnection + org.json and the offline queue uses

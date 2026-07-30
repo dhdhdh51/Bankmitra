@@ -1,7 +1,21 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools">
 
-    <style name="Theme.Lrms" parent="Theme.Material3.DayNight.NoActionBar">
+    <!-- Light, not DayNight.
+         The palette below pins colorSurface, colorOnSurface and
+         android:colorBackground to light values, and dozens of layouts reference
+         @color/text_primary and @color/surface directly. There is no
+         values-night/ providing dark counterparts. Under DayNight, a handset with
+         dark mode on therefore got Material3's DARK defaults for every attribute
+         we do NOT override (colorSurfaceVariant, colorOutline, default text
+         colours...) mixed with our hardcoded LIGHT ones - dark text on dark
+         cards, invisible hints, unreadable forms.
+         Pinning the theme to Light makes one build look the same on every
+         handset. LrmsApp also calls setDefaultNightMode(MODE_NIGHT_NO) so
+         AppCompat cannot reintroduce the dark variant at runtime.
+         Proper dark support would mean a full values-night/ palette plus an audit
+         of every layout, which is a separate piece of work. -->
+    <style name="Theme.Lrms" parent="Theme.Material3.Light.NoActionBar">
         <item name="colorPrimary">@color/brand_green</item>
         <item name="colorPrimaryDark">@color/brand_green_dark</item>
         <item name="colorOnPrimary">@color/white</item>

@@ -5,6 +5,14 @@
 <paths>
     <cache-path name="lrms_cache" path="." />
     <files-path name="lrms_files" path="." />
-    <external-files-path name="lrms_photos" path="Pictures" />
+
+    <!-- MUST match PhotoStore.CAPTURE_DIR. This said "Pictures" while
+         PhotoStore wrote into "captures", so FileProvider.getUriForFile()
+         threw IllegalArgumentException for every capture and the app reported
+         "the photo could not be saved" as if the device were out of space.
+         path="." covers the whole app-private external files dir, so renaming
+         the capture folder later cannot silently break the camera again. -->
+    <external-files-path name="lrms_photos" path="." />
+
     <external-cache-path name="lrms_ext_cache" path="." />
 </paths>

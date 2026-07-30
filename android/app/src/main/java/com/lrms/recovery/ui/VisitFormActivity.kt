@@ -221,7 +221,7 @@ class VisitFormActivity : BaseActivity() {
             val uri: Uri? = PhotoStore.uriFor(this, file)
             if (uri == null) {
                 PhotoStore.delete(file)
-                showError(getString(R.string.err_photo_save))
+                showError(getString(R.string.err_photo_share))
                 return@ensureCamera
             }
             pendingPhoto = file

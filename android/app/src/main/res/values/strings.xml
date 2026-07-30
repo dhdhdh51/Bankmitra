@@ -159,6 +159,10 @@
     <string name="promise_fields_required">A "Promise to pay" visit needs both an amount and a date.</string>
     <string name="err_no_camera_app">No camera app was found on this device.</string>
     <string name="err_photo_save">The photo could not be saved. Check that the device has free storage.</string>
+    <!-- Distinct from err_photo_save: this one is a packaging/config fault,
+         not a full disk, and telling the user to free up space would send
+         them chasing the wrong thing. -->
+    <string name="err_photo_share">The camera could not be opened because this build cannot share the photo folder. Please report this - reinstalling the latest APK usually fixes it.</string>
     <string name="err_permission_location">Location permission is required to record a GPS-verified visit.</string>
     <string name="permission_location_needed">Location permission is required to record a GPS-verified visit.</string>
     <string name="permission_camera_needed">Camera permission is required to capture visit photos.</string>
