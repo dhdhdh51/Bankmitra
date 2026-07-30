@@ -25,6 +25,10 @@ class LoginActivity : BaseActivity() {
 
     override val requiresSession = false
 
+    // No toolbar here: the pale surface colour runs all the way to the top of the
+    // screen, so the status bar icons have to be dark to stay readable.
+    override val darkStatusBarBackground = false
+
     private lateinit var binding: ActivityLoginBinding
 
     /** true = OTP mode, false = password mode. */
