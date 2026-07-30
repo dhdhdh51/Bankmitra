@@ -83,7 +83,10 @@ $sections = [
     <?php endforeach; ?>
 
     <div class="lrms-nav-footer">
-        <div class="small opacity-75">
+        <?php /* No opacity-75 here: .lrms-nav-footer is already a muted colour
+                 chosen for contrast, and Bootstrap's opacity utility multiplied
+                 on top of it dropped the text below a readable ratio. */ ?>
+        <div class="small">
             Signed in as<br>
             <strong><?= View::e(Auth::name()) ?></strong><br>
             <?= View::e($authUser['role_name'] ?? '') ?>

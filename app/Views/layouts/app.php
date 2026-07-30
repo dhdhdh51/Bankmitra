@@ -45,8 +45,11 @@ $heading = $pageTitle ?? $appName;
             <img src="<?= View::e(View::asset('img/logo.svg')) ?>" alt="" width="32" height="32">
             <span class="d-flex flex-column lh-1">
                 <span class="fw-semibold"><?= View::e($appName) ?></span>
+                <?php /* Solid white, not opacity-75: the topbar is a gradient and
+                         at its lighter end (#12775c) 75% white measured only
+                         3.84:1, under the 4.5:1 minimum. Solid white is 5.50:1. */ ?>
                 <?php if ($organisation !== ''): ?>
-                    <small class="opacity-75" style="font-size:.68rem"><?= View::e($organisation) ?></small>
+                    <small style="font-size:.72rem"><?= View::e($organisation) ?></small>
                 <?php endif; ?>
             </span>
         </a>
