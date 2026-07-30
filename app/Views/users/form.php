@@ -52,16 +52,21 @@ $roleId = (int) ($user['role_id'] ?? 4);
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" for="mobile">Mobile *</label>
-                    <input type="tel" inputmode="numeric" class="form-control" id="mobile" name="mobile"
-                           value="<?= View::e($user['mobile'] ?? '') ?>" required placeholder="9876543210">
-                    <div class="form-text">Used as the login ID and for OTP delivery. Stored encrypted.</div>
+                    <label class="form-label" for="email">Email *</label>
+                    <input type="email" class="form-control" id="email" name="email"
+                           value="<?= View::e($user['email'] ?? '') ?>" required
+                           placeholder="name@example.com">
+                    <div class="form-text">Login ID and email OTP delivery. Stored encrypted.</div>
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label" for="email">Email</label>
-                    <input type="email" class="form-control" id="email" name="email"
-                           value="<?= View::e($user['email'] ?? '') ?>">
+                    <label class="form-label" for="mobile">Mobile <span class="text-muted">(optional)</span></label>
+                    <input type="tel" inputmode="numeric" class="form-control" id="mobile" name="mobile"
+                           value="<?= View::e($user['mobile'] ?? '') ?>" placeholder="9876543210">
+                    <div class="form-text">
+                        Needed only for <strong>SMS OTP</strong>. A BC agent who will sign in
+                        on the Android app should have one. Stored encrypted.
+                    </div>
                 </div>
 
                 <div class="col-md-6">
