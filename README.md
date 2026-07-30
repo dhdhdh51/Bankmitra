@@ -39,12 +39,17 @@ when a key changes.
 | Get the Android APK | **[android/README.md](android/README.md)** |
 | Call the API | **[docs/API.md](docs/API.md)** |
 
-### Uploading from a phone? Use the `deploy/public_html` branch
+### Uploading from a phone? Use the `hosting` branch
 
-There is a second branch, **[`deploy/public_html`](../../tree/deploy/public_html)**,
-that contains *only* the files that belong on your hosting — with the root of the
-branch being the root of `public_html`. Download it as a ZIP, extract it into
-`public_html`, done. No folder shuffling, no Android source to wade through.
+There is a second branch, **[`hosting`](../../tree/hosting)**, that contains
+*only* the files that belong on your hosting — with the root of the branch being
+the root of `public_html`. Download it as a ZIP, extract it into `public_html`,
+done. No folder shuffling, no Android source to wade through.
+
+Direct ZIP: `https://github.com/dhdhdh51/Bankmitra/archive/refs/heads/hosting.zip`
+
+`deploy/public_html` is an older name for the same thing, kept as a mirror at the
+same commit so existing bookmarks keep working. New uploads should use `hosting`.
 
 Everything else (Android app, APK workflow, docs) stays on this branch.
 

@@ -37,15 +37,17 @@ The `backend/` folder in this repository **is** the web root. Upload its
 * To serve LRMS at `https://your-domain.com/` → upload into `public_html/`
 * To serve it at `https://your-domain.com/lrms/` → upload into `public_html/lrms/`
 
-**Easiest route — the `deploy/public_html` branch (works from a phone):**
+**Easiest route — the `hosting` branch (works from a phone):**
 
 That branch holds *only* the hosting files, already flattened so that the root of
 the branch is the root of `public_html`. Nothing to move around afterwards.
 
-1. On GitHub switch to branch **`deploy/public_html`** → **Code → Download ZIP**
+1. On GitHub switch to branch **`hosting`** → **Code → Download ZIP**
+   (or go straight to
+   `https://github.com/dhdhdh51/Bankmitra/archive/refs/heads/hosting.zip`)
 2. cPanel → **File Manager** → open `public_html` → **Upload** the ZIP
 3. Select the ZIP → **Extract**
-4. Open the extracted `Bankmitra-deploy-public_html` folder → **Select All** →
+4. Open the extracted `Bankmitra-hosting` folder → **Select All** →
    **Move** → destination `/public_html` (or `/public_html/lrms`)
 5. Delete the leftover folder and the ZIP
 6. File Manager → **Settings** → tick **Show Hidden Files**, and confirm
@@ -141,7 +143,7 @@ mysql -u cpuser_lrmsapp -p cpuser_lrms < ~/lrms-src/database/schema.sql
 To wipe everything and start over, import `database/rollback.sql` first.
 **That deletes all data.**
 
-If you deployed from the `deploy/public_html` branch, both `.sql` files are
+If you deployed from the `hosting` branch, both `.sql` files are
 already on the server at `public_html/database/`. They are 403-blocked from the
 web, and you can delete the folder once the import succeeds.
 
