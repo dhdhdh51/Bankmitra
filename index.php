@@ -24,7 +24,7 @@ use App\Controllers\RecoveryController;
 use App\Controllers\ReportController;
 use App\Controllers\SettingsController;
 use App\Controllers\TrackingController;
-use App\Controllers\UploadController;
+use App\Controllers\ImportController;
 use App\Controllers\UserController;
 use App\Controllers\VerifyController;
 use App\Controllers\VisitController;
@@ -110,11 +110,11 @@ $router->get('loans/{id:\d+}/statement', [LoanController::class, 'statement']);
 // listing - which Options -Indexes then refuses - and would never reach PHP.
 // Naming this group "uploads" makes the page unreachable (404/403 depending on
 // whether the host runs Apache or LiteSpeed). Do not rename it back.
-$router->get('imports', [UploadController::class, 'index']);
-$router->any('imports/import', [UploadController::class, 'import']);
-$router->get('imports/template', [UploadController::class, 'template']);
-$router->get('imports/{id:\d+}/errors', [UploadController::class, 'errors']);
-$router->any('imports/allocate', [UploadController::class, 'allocate']);
+$router->get('imports', [ImportController::class, 'index']);
+$router->any('imports/import', [ImportController::class, 'import']);
+$router->get('imports/template', [ImportController::class, 'template']);
+$router->get('imports/{id:\d+}/errors', [ImportController::class, 'errors']);
+$router->any('imports/allocate', [ImportController::class, 'allocate']);
 
 // Visits
 $router->get('visits', [VisitController::class, 'index']);

@@ -15,7 +15,7 @@ use App\Services\PhotoStorageService;
 /**
  * Excel/CSV upload and the auto-allocation engine.
  */
-final class UploadController extends Controller
+final class ImportController extends Controller
 {
     protected ?string $permission = 'loans.allocate';
 
