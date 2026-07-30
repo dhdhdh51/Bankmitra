@@ -14,6 +14,18 @@
     --lrms-mint: #7ce9bd;
     --lrms-sidebar-width: 244px;
     --lrms-topbar-height: 56px;
+
+    /* Sidebar has its own palette rather than reusing --lrms-green-dark.
+       Two reasons: the old shared colour left the section headings at a 3.54:1
+       contrast ratio (WCAG AA needs 4.5:1), and it made the sidebar and the
+       topbar the same shade so they blurred into one another. Darkening only the
+       sidebar buys contrast headroom without touching the topbar gradient.
+       Measured against #062b20: headings 7.93:1, links 13.45:1, active 15.28:1,
+       footer 10.85:1 - all past AAA (7:1). */
+    --lrms-sidebar-bg: #062b20;
+    --lrms-sidebar-text: #e8f3ee;
+    --lrms-sidebar-muted: #9dc3b4;
+    --lrms-sidebar-footer: #c9ded6;
 }
 
 body {
@@ -54,8 +66,8 @@ body {
 
 /* -------------------------------------------------------------- sidebar */
 .lrms-sidebar {
-    background: var(--lrms-green-dark);
-    color: rgba(255, 255, 255, .82);
+    background: var(--lrms-sidebar-bg);
+    color: var(--lrms-sidebar-text);
     width: var(--lrms-sidebar-width);
 }
 
@@ -66,6 +78,9 @@ body {
         height: calc(100vh - var(--lrms-topbar-height));
         overflow-y: auto;
         flex: 0 0 var(--lrms-sidebar-width);
+        /* A hard edge against the pale page background, so the sidebar reads as
+           a separate surface instead of bleeding into the content column. */
+        box-shadow: inset -1px 0 0 rgba(255, 255, 255, .10);
     }
 }
 
@@ -77,20 +92,21 @@ body {
 }
 
 .lrms-nav-group {
-    padding: 1rem 1.1rem .35rem;
-    font-size: .68rem;
-    letter-spacing: .09em;
+    padding: 1.15rem 1.1rem .4rem;
+    /* was .68rem at 45% white - too small AND too faint to read on a phone */
+    font-size: .74rem;
+    letter-spacing: .08em;
     text-transform: uppercase;
-    color: rgba(255, 255, 255, .45);
-    font-weight: 600;
+    color: var(--lrms-sidebar-muted);
+    font-weight: 700;
 }
 
 .lrms-nav-link {
     display: flex;
     align-items: center;
     gap: .7rem;
-    padding: .6rem 1.1rem;
-    color: rgba(255, 255, 255, .82);
+    padding: .62rem 1.1rem;
+    color: var(--lrms-sidebar-text);
     text-decoration: none;
     border-left: 3px solid transparent;
     transition: background-color .12s ease, color .12s ease;
@@ -100,26 +116,36 @@ body {
     font-size: 1.05rem;
     width: 1.1rem;
     text-align: center;
+    color: var(--lrms-mint);
 }
 
 .lrms-nav-link:hover,
 .lrms-nav-link:focus-visible {
-    background: rgba(255, 255, 255, .08);
+    background: rgba(255, 255, 255, .13);
     color: #fff;
 }
 
+.lrms-nav-link:focus-visible {
+    outline: 2px solid var(--lrms-mint);
+    outline-offset: -2px;
+}
+
 .lrms-nav-link.active {
-    background: rgba(124, 233, 189, .14);
+    background: rgba(124, 233, 189, .20);
     border-left-color: var(--lrms-mint);
     color: #fff;
     font-weight: 600;
 }
 
+.lrms-nav-link.active i {
+    color: #fff;
+}
+
 .lrms-nav-footer {
     margin-top: auto;
     padding: 1rem 1.1rem 0;
-    border-top: 1px solid rgba(255, 255, 255, .12);
-    color: rgba(255, 255, 255, .75);
+    border-top: 1px solid rgba(255, 255, 255, .18);
+    color: var(--lrms-sidebar-footer);
 }
 
 /* ------------------------------------------------------------- headings */
