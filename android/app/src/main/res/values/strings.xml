@@ -16,6 +16,9 @@
 
     <!-- ============================ splash ============================ -->
     <string name="splash_connecting">Connecting to your server…</string>
+    <string name="crash_report_title">The app closed unexpectedly last time</string>
+    <string name="crash_report_status">A problem report from the previous run is ready.</string>
+    <string name="crash_report_share">Share report</string>
     <string name="splash_no_server">No server address is set on this device yet.</string>
     <string name="maintenance_title">System under maintenance</string>
     <string name="update_required_title">Update required</string>

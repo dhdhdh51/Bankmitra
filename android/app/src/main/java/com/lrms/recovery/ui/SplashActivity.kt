@@ -4,12 +4,14 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.lrms.recovery.R
 import com.lrms.recovery.data.model.PingInfo
 import com.lrms.recovery.data.net.ApiResult
 import com.lrms.recovery.data.net.ErrorCodes
 import com.lrms.recovery.databinding.ActivitySplashBinding
 import com.lrms.recovery.sync.SyncScheduler
+import com.lrms.recovery.util.CrashReporter
 import com.lrms.recovery.util.DeviceInfo
 import com.lrms.recovery.util.showError
 import com.lrms.recovery.util.visible
@@ -44,7 +46,54 @@ class SplashActivity : BaseActivity() {
             // Settings needs a session; without one the URL is edited on Login.
             startActivity(Intent(this, LoginActivity::class.java))
         }
-        checkServer()
+
+        // If the previous run died, show why before doing anything else. Without
+        // this, a crash on a field handset is unreportable: there is no PC to run
+        // logcat on. See util/CrashReporter.
+        val crash = CrashReporter.pendingReport(this)
+        if (crash != null) {
+            CrashReporter.clear(this)
+            showCrashReport(crash)
+        } else {
+            checkServer()
+        }
+    }
+
+    /**
+     * Displays the saved crash report with a Share button, then continues into
+     * the normal startup path whichever button is used.
+     */
+    private fun showCrashReport(report: String) {
+        binding.progress.visible(false)
+        binding.status.text = getString(R.string.crash_report_status)
+
+        MaterialAlertDialogBuilder(this)
+            .setTitle(R.string.crash_report_title)
+            .setMessage(report)
+            .setCancelable(false)
+            .setPositiveButton(R.string.crash_report_share) { _, _ ->
+                shareCrashReport(report)
+                checkServer()
+            }
+            .setNegativeButton(R.string.continue_label) { _, _ -> checkServer() }
+            .show()
+    }
+
+    private fun shareCrashReport(report: String) {
+        val intent = Intent(Intent.ACTION_SEND).apply {
+            type = "text/plain"
+            putExtra(Intent.EXTRA_SUBJECT, "LRMS crash report")
+            putExtra(Intent.EXTRA_TEXT, report)
+        }
+        try {
+            startActivity(Intent.createChooser(intent, getString(R.string.crash_report_share)))
+        } catch (e: Exception) {
+            showError(
+                "No app on this device can share text. You can still read the report above " +
+                    "and photograph it.",
+                getString(R.string.crash_report_title),
+            )
+        }
     }
 
     private fun checkServer() {

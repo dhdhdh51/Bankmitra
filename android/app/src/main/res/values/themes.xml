@@ -18,9 +18,19 @@
     </style>
 
     <!-- Splash paints the brand colour edge to edge so a slow handset never
-         flashes white before the first frame. -->
+         flashes white before the first frame.
+         
+         windowBackground is a PLAIN COLOUR on purpose. It used to be a
+         layer-list containing <bitmap android:src="@mipmap/ic_launcher"/>,
+         which crashed the app on launch: on Android 8+ @mipmap/ic_launcher
+         resolves to mipmap-anydpi-v26/ic_launcher.xml (an <adaptive-icon>),
+         and <bitmap> cannot decode an XML drawable, so inflating the window
+         background threw before any of our code ran. The window background is
+         inflated by the system, so nothing in the app could catch it.
+         The logo is drawn properly by activity_splash.xml, which uses the
+         vector @drawable/splash_logo. -->
     <style name="Theme.Lrms.Splash" parent="Theme.Lrms">
-        <item name="android:windowBackground">@drawable/splash_background</item>
+        <item name="android:windowBackground">@color/brand_green_dark</item>
     </style>
 
     <!-- Dashboard tiles.

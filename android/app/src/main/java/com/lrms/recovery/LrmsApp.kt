@@ -7,6 +7,7 @@ import android.os.Build
 import com.lrms.recovery.data.prefs.AppPrefs
 import com.lrms.recovery.data.prefs.SessionStore
 import com.lrms.recovery.sync.SyncScheduler
+import com.lrms.recovery.util.CrashReporter
 
 /**
  * Application entry point.
@@ -25,6 +26,10 @@ class LrmsApp : Application() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // First thing, before anything that could fail: capture fatal crashes to
+        // a file so they can be read on the handset without a PC and logcat.
+        CrashReporter.install(this)
 
         createNotificationChannel()
 
