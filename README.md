@@ -39,6 +39,15 @@ when a key changes.
 | Get the Android APK | **[android/README.md](android/README.md)** |
 | Call the API | **[docs/API.md](docs/API.md)** |
 
+### Uploading from a phone? Use the `deploy/public_html` branch
+
+There is a second branch, **[`deploy/public_html`](../../tree/deploy/public_html)**,
+that contains *only* the files that belong on your hosting — with the root of the
+branch being the root of `public_html`. Download it as a ZIP, extract it into
+`public_html`, done. No folder shuffling, no Android source to wade through.
+
+Everything else (Android app, APK workflow, docs) stays on this branch.
+
 Default sign-in after importing the schema: **`ADMIN001` / `Admin@12345`** —
 you are forced to change it on first use.
 
