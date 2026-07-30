@@ -106,13 +106,17 @@ final class UserController extends Controller
 
         $this->verifyCsrf();
 
+        // Email is the mandatory identifier; mobile is optional. A panel user
+        // (regional office, branch manager) often has no work mobile, while a BC
+        // agent who will use the Android app should still be given one so that
+        // SMS OTP works - the form says so.
         $validator = new Validator($this->request->all());
         $validator->required('full_name')->maxLen('full_name', 150)
             ->required('role_id')->integer('role_id')
-            ->required('mobile')->mobile('mobile')
+            ->required('email')->email('email')
             ->maxLen('employee_code', 40);
-        if ($this->request->str('email') !== '') {
-            $validator->email('email');
+        if ($this->request->str('mobile') !== '') {
+            $validator->mobile('mobile');
         }
         if ((string) $this->request->input('password', '') !== '') {
             $validator->strongPassword('password');
@@ -124,16 +128,17 @@ final class UserController extends Controller
         }
 
         $mobile = $this->request->str('mobile');
-        $mobileHash = Crypto::blindIndex($mobile, 'mobile');
+        $mobileHash = $mobile !== '' ? Crypto::blindIndex($mobile, 'mobile') : null;
 
-        if (Database::first('SELECT id FROM users WHERE mobile_hash = ?', [$mobileHash]) !== null) {
+        if ($mobileHash !== null
+            && Database::first('SELECT id FROM users WHERE mobile_hash = ?', [$mobileHash]) !== null) {
             $this->back('danger', 'A user with this mobile number already exists.');
             return;
         }
 
         $email = $this->request->str('email');
-        $emailHash = $email !== '' ? Crypto::blindIndex($email, 'email') : null;
-        if ($emailHash !== null && Database::first('SELECT id FROM users WHERE email_hash = ?', [$emailHash]) !== null) {
+        $emailHash = Crypto::blindIndex($email, 'email');
+        if (Database::first('SELECT id FROM users WHERE email_hash = ?', [$emailHash]) !== null) {
             $this->back('danger', 'A user with this email address already exists.');
             return;
         }
@@ -166,10 +171,10 @@ final class UserController extends Controller
                 'branch_id'            => $branchId > 0 ? $branchId : null,
                 'employee_code'        => $this->request->str('employee_code') !== '' ? $this->request->str('employee_code') : null,
                 'full_name'            => $this->request->str('full_name'),
-                'mobile_enc'           => Crypto::encrypt(Crypto::normalise($mobile, 'mobile')),
+                'mobile_enc'           => $mobile !== '' ? Crypto::encrypt(Crypto::normalise($mobile, 'mobile')) : null,
                 'mobile_hash'          => $mobileHash,
-                'mobile_last4'         => Crypto::last4($mobile),
-                'email_enc'            => $email !== '' ? Crypto::encrypt(Crypto::normalise($email, 'email')) : null,
+                'mobile_last4'         => $mobile !== '' ? Crypto::last4($mobile) : null,
+                'email_enc'            => Crypto::encrypt(Crypto::normalise($email, 'email')),
                 'email_hash'           => $emailHash,
                 'password_hash'        => password_hash($password, PASSWORD_DEFAULT),
                 'must_change_password' => 1,
@@ -253,12 +258,13 @@ final class UserController extends Controller
 
         $this->verifyCsrf();
 
+        // Same rule as create: email required, mobile optional.
         $validator = new Validator($this->request->all());
         $validator->required('full_name')->maxLen('full_name', 150)
-            ->required('mobile')->mobile('mobile')
+            ->required('email')->email('email')
             ->maxLen('employee_code', 40);
-        if ($this->request->str('email') !== '') {
-            $validator->email('email');
+        if ($this->request->str('mobile') !== '') {
+            $validator->mobile('mobile');
         }
         if ($validator->fails()) {
             $this->back('danger', $validator->summary());
@@ -266,17 +272,21 @@ final class UserController extends Controller
         }
 
         $mobile = $this->request->str('mobile');
-        $mobileHash = Crypto::blindIndex($mobile, 'mobile');
-        $clash = Database::first('SELECT id FROM users WHERE mobile_hash = ? AND id <> ?', [$mobileHash, $id]);
-        if ($clash !== null) {
-            $this->back('danger', 'Another user already uses this mobile number.');
-            return;
+        $mobileHash = $mobile !== '' ? Crypto::blindIndex($mobile, 'mobile') : null;
+        if ($mobileHash !== null) {
+            $clash = Database::first(
+                'SELECT id FROM users WHERE mobile_hash = ? AND id <> ?',
+                [$mobileHash, $id]
+            );
+            if ($clash !== null) {
+                $this->back('danger', 'Another user already uses this mobile number.');
+                return;
+            }
         }
 
         $email = $this->request->str('email');
-        $emailHash = $email !== '' ? Crypto::blindIndex($email, 'email') : null;
-        if ($emailHash !== null
-            && Database::first('SELECT id FROM users WHERE email_hash = ? AND id <> ?', [$emailHash, $id]) !== null) {
+        $emailHash = Crypto::blindIndex($email, 'email');
+        if (Database::first('SELECT id FROM users WHERE email_hash = ? AND id <> ?', [$emailHash, $id]) !== null) {
             $this->back('danger', 'Another user already uses this email address.');
             return;
         }
@@ -296,10 +306,10 @@ final class UserController extends Controller
             'full_name'     => $this->request->str('full_name'),
             'employee_code' => $this->request->str('employee_code') !== '' ? $this->request->str('employee_code') : null,
             'branch_id'     => $branchId > 0 ? $branchId : null,
-            'mobile_enc'    => Crypto::encrypt(Crypto::normalise($mobile, 'mobile')),
+            'mobile_enc'    => $mobile !== '' ? Crypto::encrypt(Crypto::normalise($mobile, 'mobile')) : null,
             'mobile_hash'   => $mobileHash,
-            'mobile_last4'  => Crypto::last4($mobile),
-            'email_enc'     => $email !== '' ? Crypto::encrypt(Crypto::normalise($email, 'email')) : null,
+            'mobile_last4'  => $mobile !== '' ? Crypto::last4($mobile) : null,
+            'email_enc'     => Crypto::encrypt(Crypto::normalise($email, 'email')),
             'email_hash'    => $emailHash,
         ];
 
