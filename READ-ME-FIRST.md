@@ -10,6 +10,9 @@ you want LRMS on a sub-path).
 The Android app source, the workflow that builds the APK, and the long-form
 deployment guide live on the `feat/lrms-initial-implementation` branch.
 
+`deploy/public_html` is an older name for this same branch and is kept at the
+same commit, so either one works. Prefer `hosting`.
+
 ---
 
 ## What is in here
@@ -40,11 +43,12 @@ You create it in step 3 from `config/config.sample.php`.
 
 ### Option A — ZIP from GitHub, extract in cPanel *(easiest, no PC needed)*
 
-1. On GitHub, switch to branch **`deploy/public_html`**
+1. On GitHub, switch to branch **`hosting`** — or skip straight to the ZIP:
+   `https://github.com/dhdhdh51/Bankmitra/archive/refs/heads/hosting.zip`
 2. Green **Code** button → **Download ZIP**
 3. cPanel → **File Manager** → open `public_html` → **Upload** → pick the ZIP
 4. Back in `public_html`, select the ZIP → **Extract**
-5. It extracts into a folder named something like `Bankmitra-deploy-public_html`.
+5. It extracts into a folder named `Bankmitra-hosting`.
    Open that folder → **Select All** → **Move** → target `/public_html`
 6. Delete the now-empty folder and the ZIP
 7. File Manager → **Settings** (top right) → tick **Show Hidden Files**, then
@@ -57,7 +61,7 @@ You create it in step 3 from `config/config.sample.php`.
 
 ```bash
 cd ~
-git clone --depth 1 --branch deploy/public_html https://github.com/dhdhdh51/Bankmitra.git lrms-src
+git clone --depth 1 --branch hosting https://github.com/dhdhdh51/Bankmitra.git lrms-src
 cd ~/public_html
 cp -a ~/lrms-src/. .
 rm -rf .git
