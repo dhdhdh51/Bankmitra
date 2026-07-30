@@ -418,11 +418,15 @@ final class AllocationService
         foreach ($branches as $branch) {
             $currentBranchId = (int) $branch['id'];
 
+            // NOTE: the alias is account_load, not load. LOAD is a reserved word
+            // in MySQL, so `AS load` / `ORDER BY load` is a syntax error. The
+            // alias was renamed once and this ORDER BY was missed, which made
+            // every equal-distribution run fail.
             $agents = Database::all(
                 'SELECT b.id, (SELECT COUNT(*) FROM loans l WHERE l.bc_id = b.id AND l.status = "active") AS account_load
                  FROM bc_agents b
                  WHERE b.branch_id = ? AND b.status = "active"
-                 ORDER BY load ASC',
+                 ORDER BY account_load ASC, b.id ASC',
                 [$currentBranchId]
             );
 

@@ -162,7 +162,17 @@ final class ImportController extends Controller
 
         $branchId = $this->request->int('branch_id');
         if (Auth::hasRole(Auth::ROLE_BRANCH_MANAGER)) {
+            // A branch manager may only allocate inside their own branch. If they
+            // have no branch assigned, branchId used to fall through to 0 and
+            // then to null, which distributeEqually() reads as "every branch" -
+            // so the guard has to refuse rather than widen the scope.
             $branchId = Auth::branchId() ?? 0;
+            if ($branchId <= 0) {
+                $this->redirect('imports', 'danger',
+                    'Your account is not linked to a branch, so there is nothing to '
+                    . 'allocate. Ask a Super Admin to set your branch.');
+                return;
+            }
         }
 
         $allocated = (new AllocationService())->distributeEqually($branchId > 0 ? $branchId : null);
