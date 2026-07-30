@@ -40,6 +40,9 @@
 # ---------------------------------------------------------------------
 # Directories containing code, secrets and logs. Requests to these must 403
 # even if mod_rewrite is unavailable.
+# 'database' is here for the hosting branch, where database/ sits next to
+# index.php. Harmless on layouts that have no such folder - the rule simply
+# never matches. Keeping one .htaccess for both avoids the two drifting.
 RedirectMatch 403 ^/?(app|config|lib|cron|storage|database)(/|$)
 RedirectMatch 403 ^.*/(app|config|lib|cron|storage|database)/.*$
 
@@ -67,6 +70,35 @@ RedirectMatch 403 ^.*/(app|config|lib|cron|storage|database)/.*$
 <IfModule mod_rewrite.c>
     RewriteRule ^uploads/.*\.(php|phtml|php3|php4|php5|php7|phps|pl|py|cgi|sh|htaccess)$ - [F,L]
 </IfModule>
+
+# ---------------------------------------------------------------------
+# 3b. Hosting firewall (mod_security / WAF) and the photo upload
+# ---------------------------------------------------------------------
+# SYMPTOM: the Android app says "the server sent a response the app could not
+# understand (HTTP 403)" when submitting a visit, a recovery or attendance,
+# while signing in and browsing work fine.
+#
+# CAUSE: shared hosts run mod_security in front of PHP, and its default rule
+# sets frequently reject multipart/form-data uploads. The rejection never
+# reaches PHP, so LRMS cannot turn it into a JSON error.
+#
+# HOW TO CONFIRM: cPanel > Errors, or cPanel > ModSecurity Tools > Hits List,
+# will show the rule id that fired for /api/v1/visits.
+#
+# PREFERRED FIX: cPanel > ModSecurity Tools > disable that single rule for this
+# domain, or ask support to whitelist it. That keeps the firewall on everywhere
+# else.
+#
+# LAST RESORT: uncomment the block below to turn mod_security off for the API
+# path only. The admin panel keeps its protection. Many hosts forbid
+# SecRuleEngine in .htaccess and will return HTTP 500 if you try - if that
+# happens, comment it straight back out and use the cPanel route instead.
+#
+# <IfModule mod_security2.c>
+#     <LocationMatch "^/api/v1/">
+#         SecRuleEngine Off
+#     </LocationMatch>
+# </IfModule>
 
 # ---------------------------------------------------------------------
 # 4. Force HTTPS (enable after installing the free AutoSSL certificate
