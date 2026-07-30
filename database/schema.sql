@@ -320,8 +320,40 @@ CREATE TABLE IF NOT EXISTS `visits` (
   `promise_date`        DATE         DEFAULT NULL,
   `collected_amount`    DECIMAL(14,2) NOT NULL DEFAULT 0.00 COMMENT 'denormalised from recoveries for fast reports',
   `recommendation`      TEXT         DEFAULT NULL,
-  `remarks`             TEXT         DEFAULT NULL,
-  `signature_path`      VARCHAR(255) DEFAULT NULL,
+  `remarks`             TEXT         DEFAULT NULL COMMENT 'section 8 - customer statement',
+  `signature_path`      VARCHAR(255) DEFAULT NULL COMMENT 'BC agent signature',
+
+  -- -------------------------------------------------------------------
+  -- Central Bank of India "BC FIELD VISIT REPORT" fields.
+  -- Section numbers refer to that printed form, which the app reproduces
+  -- one-for-one so a field agent fills nothing twice.
+  -- -------------------------------------------------------------------
+  -- 3. loan type
+  `loan_type`           ENUM('ckcc','agl','dairy','shg','other') DEFAULT NULL,
+  `loan_type_other`     VARCHAR(80)  DEFAULT NULL,
+  -- 4. current account status
+  `account_status`      ENUM('npa','ckcc_od2','krm_ots','other') DEFAULT NULL,
+  `account_status_other` VARCHAR(80) DEFAULT NULL,
+  `rc_issued`           TINYINT(1)   NOT NULL DEFAULT 0,
+  -- 5. how contact was made. The number actually reached is PII, so it is
+  --    encrypted like every other mobile, with last4 kept for display.
+  `contact_status`      ENUM('borrower','family','not_found','phone','phone_off') DEFAULT NULL,
+  `contact_mobile_enc`  TEXT         DEFAULT NULL,
+  `contact_mobile_last4` CHAR(4)     DEFAULT NULL,
+  -- 7. physical verification
+  `borrower_alive`      TINYINT(1)   DEFAULT NULL,
+  `residence_status`    ENUM('same','moved') DEFAULT NULL,
+  `income_source`       ENUM('agri','dairy','job','business','labour','other') DEFAULT NULL,
+  `income_source_other` VARCHAR(80)  DEFAULT NULL,
+  -- 9. willingness to pay
+  `willing_to_pay`      TINYINT(1)   DEFAULT NULL,
+  `payment_plan`        ENUM('interest','krm_ots') DEFAULT NULL,
+  -- 10 + 11. multi-select tick boxes, stored as comma separated codes
+  `nonpayment_reasons`  VARCHAR(255) DEFAULT NULL,
+  `nonpayment_other`    VARCHAR(120) DEFAULT NULL,
+  `recommendations`     VARCHAR(255) DEFAULT NULL,
+  -- 13. the borrower's own signature or thumb impression
+  `borrower_signature_path` VARCHAR(255) DEFAULT NULL,
   `device_id`           VARCHAR(190) DEFAULT NULL,
   `app_version`         VARCHAR(20)  DEFAULT NULL,
   `sync_source`         ENUM('online','offline_queue','web') NOT NULL DEFAULT 'online',

@@ -97,10 +97,17 @@ class ApiClient private constructor(context: Context) {
      * `/attendance` endpoints. Streams the files straight off disk so a handful
      * of 8 MB photos never has to fit in memory at once.
      */
+    /**
+     * @param repeated fields that appear MORE THAN ONCE under the same name, which
+     *                 a Map cannot express. `photo_types[]` needs this: it runs
+     *                 parallel to `photos[]` so the server can tell which photo is
+     *                 the house and which is the borrower.
+     */
     suspend fun postMultipart(
         path: String,
         fields: Map<String, String?>,
         files: List<FilePart> = emptyList(),
+        repeated: List<Pair<String, String>> = emptyList(),
     ): ApiResult<ApiData> = withContext(Dispatchers.IO) {
         val boundary = "----LRMSBoundary" + UUID.randomUUID().toString().replace("-", "")
         execute("POST", path) { conn ->
@@ -109,13 +116,19 @@ class ApiClient private constructor(context: Context) {
             conn.setChunkedStreamingMode(0)
             BufferedOutputStream(conn.outputStream).use { out ->
                 val w = { s: String -> out.write(s.toByteArray(Charsets.UTF_8)) }
-                for ((key, value) in fields) {
-                    if (value == null) continue
+                val textPart = { key: String, value: String ->
                     w("--$boundary\r\n")
                     w("Content-Disposition: form-data; name=\"$key\"\r\n")
                     w("Content-Type: text/plain; charset=utf-8\r\n\r\n")
                     w(value)
                     w("\r\n")
+                }
+                for ((key, value) in fields) {
+                    if (value == null) continue
+                    textPart(key, value)
+                }
+                for ((key, value) in repeated) {
+                    textPart(key, value)
                 }
                 for (part in files) {
                     if (!part.file.exists()) continue

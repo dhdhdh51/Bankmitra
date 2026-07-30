@@ -379,9 +379,51 @@ or a mock provider is detected (when `block_mock_gps` is on).
 | `promise_amount` | decimal | no | required when `visit_status=promise` |
 | `promise_date` | date | no | required when `visit_status=promise` |
 | `recommendation`, `remarks` | text | no | |
-| `signature` | base64 png | no | signature pad output |
+| `signature` | base64 png | no | BC agent's signature pad output |
 | `photos[]` | file | see config | JPG/PNG/WebP, max 8 MB each |
 | `app_version` | string | no | |
+
+#### Central Bank "BC FIELD VISIT REPORT" fields
+
+The app reproduces the printed Central Bank of India form, so `POST /visits`
+accepts the rest of it. **All optional** — an older app that sends none of them
+still works unchanged, and anything outside the code lists below is stored as
+`NULL` rather than rejected, so a newer app cannot corrupt an older server.
+
+| Field | Section | Values |
+|---|---|---|
+| `loan_type` | 3 | `ckcc` `agl` `dairy` `shg` `other` |
+| `loan_type_other` | 3 | free text, 80 |
+| `account_status` | 4 | `npa` `ckcc_od2` `krm_ots` `other` |
+| `account_status_other` | 4 | free text, 80 |
+| `rc_issued` | 4 | bool |
+| `contact_status` | 5 | `borrower` `family` `not_found` `phone` `phone_off` |
+| `contact_mobile` | 5 | the number actually reached; **stored encrypted** |
+| `borrower_alive` | 7 | bool |
+| `residence_status` | 7 | `same` `moved` |
+| `income_source` | 7 | `agri` `dairy` `job` `business` `labour` `other` |
+| `income_source_other` | 7 | free text, 80 |
+| `remarks` | 8 | the customer's statement |
+| `willing_to_pay` | 9 | bool |
+| `payment_plan` | 9 | `interest` `krm_ots` |
+| `promise_amount`, `promise_date` | 9 | as above |
+| `nonpayment_reasons` | 10 | comma separated: `financial` `crop_failure` `cattle_loss` `illness` `unemployment` `dispute` `other_bank_loan` `other` |
+| `nonpayment_other` | 10 | free text, 120 |
+| `recommendations` | 11 | comma separated: `recovery_good` `followup_needed` `legal_action` `rc_issue` `krm_ots` `other` |
+| `photo_types[]` | 12 | `customer` `house` `document` `selfie` `other` — **repeated, parallel to `photos[]`** so `photo_types[0]` tags `photos[0]` |
+| `borrower_signature` | 13 | base64 png, the borrower's signature or thumb impression |
+
+Sections 1, 2 and 3 are **not** sent: the server already holds the branch, agent,
+customer and loan details and fills them in itself. The app shows them read-only
+so nothing is retyped in the field.
+
+`GET /loans/{id}` supplies everything the form needs to prefill.
+
+**Printing.** The filled form is available as a Hindi, A4 print page in the admin
+panel at `/visits/{id}/print` (Print → Save as PDF). It is HTML rather than a
+generated PDF because Devanagari needs text shaping — matras reorder around the
+consonant and conjuncts like क्ष are single glyphs — and every browser already
+does that correctly.
 
 Response
 ```json

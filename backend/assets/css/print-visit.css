@@ -1,0 +1,187 @@
+/* =====================================================================
+   LRMS - printable BC Field Visit Report (A4)
+   ---------------------------------------------------------------------
+   Reproduces the Central Bank of India printed form. Deliberately plain
+   CSS with no framework: this file is loaded on its own for printing.
+
+   The font stack lists Devanagari faces first. A Windows machine has
+   Nirmala UI, a Mac has Kohinoker/Devanagari Sangam MN, Android has Noto
+   Sans Devanagari, and Linux usually has Lohit. If none is present the
+   browser still falls back to something with Devanagari coverage,
+   because the page declares lang="hi".
+   ===================================================================== */
+
+* { box-sizing: border-box; }
+
+body {
+    margin: 0;
+    background: #f0f2f4;
+    font-family: "Nirmala UI", "Noto Sans Devanagari", "Kohinoor Devanagari",
+                 "Devanagari Sangam MN", "Lohit Devanagari", "Mangal",
+                 system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-size: 10.5pt;
+    color: #000;
+    line-height: 1.5;
+}
+
+/* ------------------------------------------------------------ toolbar */
+.toolbar {
+    background: #0a4433;
+    color: #fff;
+    padding: 10px 14px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.btn-print, .btn-back {
+    font: inherit;
+    padding: 7px 16px;
+    border-radius: 4px;
+    border: 0;
+    cursor: pointer;
+    text-decoration: none;
+}
+
+.btn-print { background: #7ce9bd; color: #06281e; font-weight: 700; }
+.btn-back  { background: rgba(255,255,255,.16); color: #fff; }
+.toolbar .hint { font-size: 9pt; color: #d6efe6; }
+
+/* ------------------------------------------------------------- sheet */
+.sheet {
+    width: 210mm;
+    min-height: 297mm;
+    margin: 14px auto;
+    padding: 12mm 12mm 10mm;
+    background: #fff;
+    box-shadow: 0 2px 10px rgba(0,0,0,.18);
+}
+
+.doc-head { text-align: center; border-bottom: 2px solid #0a4433; padding-bottom: 6px; }
+.doc-head .bank { font-size: 17pt; font-weight: 700; color: #0a4433; }
+.doc-head .branchline { margin-top: 6px; font-size: 10pt; }
+
+.title-bar {
+    margin-top: 10px;
+    background: #0a4433;
+    color: #fff;
+    text-align: center;
+    padding: 5px;
+    font-weight: 700;
+    font-size: 11pt;
+}
+
+.title-sub { text-align: center; font-style: italic; font-size: 9.5pt; margin: 4px 0 10px; }
+
+/* ---------------------------------------------------------- sections */
+.sec { margin-top: 9px; break-inside: avoid; }
+
+.sec > h2 {
+    background: #0a4433;
+    color: #fff;
+    font-size: 10.5pt;
+    font-weight: 700;
+    margin: 0 0 6px;
+    padding: 3px 8px;
+    border-left: 5px solid #c8a34a;
+}
+
+.grid { display: flex; flex-wrap: wrap; gap: 2px 18px; }
+.f { flex: 1 1 46%; min-width: 40%; display: flex; gap: 6px; align-items: baseline; }
+.f.wide { flex-basis: 100%; }
+.f > .k { font-weight: 700; white-space: nowrap; }
+
+/* The value sits on a dotted rule so an empty field still looks like the
+   printed form's blank line. */
+.f > .v {
+    flex: 1;
+    border-bottom: 1px dotted #666;
+    min-height: 1.35em;
+    padding: 0 3px;
+    word-break: break-word;
+}
+
+.f > .v.empty::after { content: "\00a0"; }
+
+/* ------------------------------------------------------- check boxes */
+.opts { display: flex; flex-wrap: wrap; gap: 3px 20px; margin: 2px 0; }
+.opt { display: flex; align-items: center; gap: 6px; }
+
+.box {
+    display: inline-block;
+    width: 11px; height: 11px;
+    border: 1.2px solid #000;
+    position: relative;
+    flex: 0 0 auto;
+}
+
+/* A ticked box gets a real tick, not a colour fill, so it survives
+   black-and-white printing and photocopying. */
+.box.on::after {
+    content: "";
+    position: absolute;
+    left: 1px; top: -3px;
+    width: 6px; height: 9px;
+    border-right: 2px solid #000;
+    border-bottom: 2px solid #000;
+    transform: rotate(40deg);
+}
+
+.subhead { font-style: italic; font-size: 9.5pt; margin: 5px 0 1px; }
+
+.statement {
+    border: 1px solid #999;
+    min-height: 22mm;
+    padding: 5px 7px;
+    white-space: pre-wrap;
+    word-break: break-word;
+}
+
+/* ------------------------------------------------------- declaration */
+.declare { margin-top: 8px; font-size: 10pt; text-align: justify; }
+
+.signs { display: flex; gap: 10px; margin-top: 12px; }
+
+.sign-box {
+    flex: 1;
+    border: 1px solid #0a4433;
+    background: #f2faf7;
+    text-align: center;
+    padding: 5px;
+}
+
+.sign-box .lbl { font-weight: 700; font-size: 9.5pt; }
+.sign-box img { display: block; margin: 4px auto 0; max-height: 20mm; max-width: 100%; }
+.sign-box .blank { height: 20mm; }
+
+/* ------------------------------------------------------------ photos */
+.shots { display: flex; flex-wrap: wrap; gap: 6px; }
+.shot { width: 45mm; }
+.shot img { width: 100%; border: 1px solid #999; }
+.shot .cap { font-size: 8pt; text-align: center; }
+
+.gps-line { font-size: 9pt; margin-top: 4px; }
+.foot { margin-top: 10px; text-align: center; font-size: 8.5pt; color: #444; }
+
+/* ------------------------------------------------------------- print */
+@media print {
+    @page { size: A4; margin: 10mm; }
+
+    body { background: #fff; font-size: 10pt; }
+    .no-print { display: none !important; }
+
+    .sheet {
+        width: auto;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        box-shadow: none;
+    }
+
+    /* Keep the dark section headers and the tick marks when the browser
+       would otherwise drop backgrounds to save ink. */
+    .sec > h2, .title-bar { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+
+    .page-break { break-before: page; }
+}

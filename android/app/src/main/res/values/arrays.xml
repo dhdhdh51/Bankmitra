@@ -57,4 +57,143 @@
         <item>Demand draft</item>
         <item>Other</item>
     </string-array>
+
+    <!-- =================================================================
+         BC FIELD VISIT REPORT option lists.
+         Every *_values array must stay in the same order as its *_labels
+         array, and the values must match the enums in the visits table and
+         the code lists in VisitService. A blank first item means "not
+         answered", which the server stores as NULL.
+         ================================================================= -->
+
+    <!-- section 3 -->
+    <string-array name="vf_loan_type_values">
+        <item></item>
+        <item>ckcc</item>
+        <item>agl</item>
+        <item>dairy</item>
+        <item>shg</item>
+        <item>other</item>
+    </string-array>
+    <string-array name="vf_loan_type_labels">
+        <item>चुनें</item>
+        <item>CKCC</item>
+        <item>AGL</item>
+        <item>Dairy</item>
+        <item>SHG</item>
+        <item>Other (अन्य)</item>
+    </string-array>
+
+    <!-- section 4 -->
+    <string-array name="vf_account_status_values">
+        <item></item>
+        <item>npa</item>
+        <item>ckcc_od2</item>
+        <item>krm_ots</item>
+        <item>other</item>
+    </string-array>
+    <string-array name="vf_account_status_labels">
+        <item>चुनें</item>
+        <item>NPA</item>
+        <item>CKCC OD-2</item>
+        <item>KRM OTS</item>
+        <item>Other (अन्य)</item>
+    </string-array>
+
+    <!-- section 5 -->
+    <string-array name="vf_contact_status_values">
+        <item></item>
+        <item>borrower</item>
+        <item>family</item>
+        <item>not_found</item>
+        <item>phone</item>
+        <item>phone_off</item>
+    </string-array>
+    <string-array name="vf_contact_status_labels">
+        <item>चुनें</item>
+        <item>स्वयं उधारकर्ता से मुलाकात हुई</item>
+        <item>परिवार के सदस्य से मुलाकात हुई</item>
+        <item>ग्राहक घर पर नहीं मिला</item>
+        <item>फोन पर संपर्क हुआ</item>
+        <item>फोन बंद मिला</item>
+    </string-array>
+
+    <!-- section 7 -->
+    <string-array name="vf_alive_values">
+        <item></item>
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="vf_alive_labels">
+        <item>चुनें</item>
+        <item>हाँ</item>
+        <item>नहीं</item>
+    </string-array>
+
+    <string-array name="vf_residence_values">
+        <item></item>
+        <item>same</item>
+        <item>moved</item>
+    </string-array>
+    <string-array name="vf_residence_labels">
+        <item>चुनें</item>
+        <item>उसी पते पर रह रहे हैं</item>
+        <item>अन्य स्थान पर चले गए</item>
+    </string-array>
+
+    <string-array name="vf_income_values">
+        <item></item>
+        <item>agri</item>
+        <item>dairy</item>
+        <item>job</item>
+        <item>business</item>
+        <item>labour</item>
+        <item>other</item>
+    </string-array>
+    <string-array name="vf_income_labels">
+        <item>चुनें</item>
+        <item>कृषि</item>
+        <item>डेयरी</item>
+        <item>नौकरी</item>
+        <item>व्यापार</item>
+        <item>मजदूरी</item>
+        <item>अन्य</item>
+    </string-array>
+
+    <!-- section 9 -->
+    <string-array name="vf_willing_values">
+        <item></item>
+        <item>1</item>
+        <item>0</item>
+    </string-array>
+    <string-array name="vf_willing_labels">
+        <item>चुनें</item>
+        <item>हाँ</item>
+        <item>नहीं</item>
+    </string-array>
+
+    <string-array name="vf_payment_plan_values">
+        <item></item>
+        <item>interest</item>
+        <item>krm_ots</item>
+    </string-array>
+    <string-array name="vf_payment_plan_labels">
+        <item>चुनें</item>
+        <item>ब्याज जमा करेगा</item>
+        <item>KRM OTS के अंतर्गत भुगतान करेगा</item>
+    </string-array>
+
+    <!-- section 12: which evidence a capture is -->
+    <string-array name="vf_photo_kind_values">
+        <item>customer</item>
+        <item>house</item>
+        <item>document</item>
+        <item>other</item>
+    </string-array>
+    <string-array name="vf_photo_kind_labels">
+        <item>ग्राहक के साथ फोटो</item>
+        <item>घर का फोटो</item>
+        <item>आधार / दस्तावेज़</item>
+        <item>अन्य</item>
+    </string-array>
 </resources>

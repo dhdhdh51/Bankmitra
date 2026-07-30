@@ -120,6 +120,8 @@ $router->any('imports/allocate', [ImportController::class, 'allocate']);
 $router->get('visits', [VisitController::class, 'index']);
 $router->get('visits/{id:\d+}', [VisitController::class, 'show']);
 $router->get('visits/{id:\d+}/pdf', [VisitController::class, 'pdf']);
+// Hindi, print-to-PDF version of the official Central Bank field visit form.
+$router->get('visits/{id:\d+}/print', [VisitController::class, 'print']);
 $router->post('visits/{id:\d+}/verify', [VisitController::class, 'verify']);
 
 // Recoveries

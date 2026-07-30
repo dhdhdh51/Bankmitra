@@ -225,12 +225,19 @@ class LrmsRepository private constructor(context: Context) {
      * signature travels as a plain base64 form field, exactly as documented.
      */
     suspend fun submitVisit(draft: VisitDraft): ApiResult<VisitSubmitResult> {
-        val files = draft.photoPaths
-            .map { File(it) }
-            .filter { it.exists() && it.length() > 0 }
-            .map { FilePart("photos[]", it) }
-        return api.postMultipart("/visits", draft.toFields(), files)
-            .mapObject { VisitSubmitResult.from(it) }
+        // photo_types[i] has to line up with photos[i], so the two lists are
+        // paired BEFORE dropping missing files. Filtering them separately would
+        // shift the tags by one as soon as a single capture had gone missing.
+        val pairs = draft.photoPaths
+            .mapIndexed { i, path -> File(path) to (draft.photoTypes.getOrNull(i) ?: "house") }
+            .filter { (file, _) -> file.exists() && file.length() > 0 }
+
+        return api.postMultipart(
+            path = "/visits",
+            fields = draft.toFields(),
+            files = pairs.map { (file, _) -> FilePart("photos[]", file) },
+            repeated = pairs.map { (_, type) -> "photo_types[]" to type },
+        ).mapObject { VisitSubmitResult.from(it) }
     }
 
     suspend fun submitRecovery(draft: RecoveryDraft): ApiResult<RecoverySubmitResult> {

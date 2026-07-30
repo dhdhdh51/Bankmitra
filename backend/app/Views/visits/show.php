@@ -26,6 +26,12 @@ $distance = $visit['distance_from_customer_m'] === null ? null : (int) $visit['d
         </div>
     </div>
     <div class="ms-auto d-flex gap-2">
+        <?php /* The Hindi form is the one the bank actually files, so it leads. */ ?>
+        <a class="btn btn-sm btn-success" target="_blank" rel="noopener"
+           href="<?= View::e(View::url('visits/' . (int) $visit['id'] . '/print')) ?>">
+            <i class="bi bi-printer me-1"></i>BC विजिट रिपोर्ट (हिंदी)
+        </a>
+
         <a class="btn btn-sm btn-outline-success" target="_blank" rel="noopener"
            href="<?= View::e(View::url('visits/' . (int) $visit['id'] . '/pdf')) ?>">
             <i class="bi bi-file-earmark-pdf me-1"></i>Report PDF

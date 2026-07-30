@@ -40,6 +40,24 @@ final class VisitApiController extends ApiController
         if ($this->request->str('recovery_possibility') !== '') {
             $validator->inList('recovery_possibility', ['high', 'medium', 'low', 'nil']);
         }
+
+        // Central Bank form enums. inList() ignores empty values, so each of
+        // these is only checked when the app actually sent something.
+        $validator
+            ->inList('loan_type', ['ckcc', 'agl', 'dairy', 'shg', 'other'])
+            ->inList('account_status', ['npa', 'ckcc_od2', 'krm_ots', 'other'])
+            ->inList('contact_status', ['borrower', 'family', 'not_found', 'phone', 'phone_off'])
+            ->inList('residence_status', ['same', 'moved'])
+            ->inList('income_source', ['agri', 'dairy', 'job', 'business', 'labour', 'other'])
+            ->inList('payment_plan', ['interest', 'krm_ots'])
+            ->maxLen('loan_type_other', 80)
+            ->maxLen('account_status_other', 80)
+            ->maxLen('income_source_other', 80)
+            ->maxLen('nonpayment_other', 120);
+
+        if ($this->request->str('contact_mobile') !== '') {
+            $validator->mobile('contact_mobile');
+        }
         if ($this->request->str('promise_date') !== '') {
             $validator->date('promise_date');
         }
@@ -90,6 +108,29 @@ final class VisitApiController extends ApiController
                 'promise_date'         => $this->request->str('promise_date'),
                 'recommendation'       => $this->nullable('recommendation'),
                 'remarks'              => $this->nullable('remarks'),
+
+                // ---- Central Bank BC FIELD VISIT REPORT sections ------------
+                // Every one is optional so an older app keeps working; the
+                // service drops anything outside the documented code lists.
+                'loan_type'            => $this->nullable('loan_type'),
+                'loan_type_other'      => $this->nullable('loan_type_other'),
+                'account_status'       => $this->nullable('account_status'),
+                'account_status_other' => $this->nullable('account_status_other'),
+                'rc_issued'            => $this->request->bool('rc_issued', false),
+                'contact_status'       => $this->nullable('contact_status'),
+                'contact_mobile'       => $this->request->str('contact_mobile'),
+                'borrower_alive'       => $this->request->str('borrower_alive') !== ''
+                    ? $this->request->bool('borrower_alive', true) : null,
+                'residence_status'     => $this->nullable('residence_status'),
+                'income_source'        => $this->nullable('income_source'),
+                'income_source_other'  => $this->nullable('income_source_other'),
+                'willing_to_pay'       => $this->request->str('willing_to_pay') !== ''
+                    ? $this->request->bool('willing_to_pay', true) : null,
+                'payment_plan'         => $this->nullable('payment_plan'),
+                'nonpayment_reasons'   => $this->nullable('nonpayment_reasons'),
+                'nonpayment_other'     => $this->nullable('nonpayment_other'),
+                'recommendations'      => $this->nullable('recommendations'),
+
                 'device_id'            => $this->deviceId() !== '' ? $this->deviceId() : null,
                 'app_version'          => $this->appVersion() !== '' ? $this->appVersion() : null,
                 'sync_source'          => $this->request->bool('from_queue', false) ? 'offline_queue' : 'online',
@@ -97,7 +138,10 @@ final class VisitApiController extends ApiController
             $this->request->files('photos'),
             (string) $this->request->input('signature', ''),
             (string) ($this->user['full_name'] ?? 'BC Agent')
-                . ($this->user['bc_code'] !== null ? ' (' . $this->user['bc_code'] . ')' : '')
+                . ($this->user['bc_code'] !== null ? ' (' . $this->user['bc_code'] . ')' : ''),
+            (string) $this->request->input('borrower_signature', ''),
+            // photo_types[] runs parallel to photos[]: photo_types[0] tags photos[0].
+            array_map('strval', (array) $this->request->input('photo_types', []))
         );
 
         if (!$result['ok']) {

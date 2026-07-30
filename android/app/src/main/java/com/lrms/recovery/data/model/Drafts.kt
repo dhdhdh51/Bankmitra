@@ -52,8 +52,22 @@ class VisitDraft(
     val remarks: String?,
     /** Signature pad export, `data:`-free base64 PNG. */
     val signatureBase64: String?,
+    /** The borrower's own signature or thumb impression (section 13). */
+    val borrowerSignatureBase64: String? = null,
+    /**
+     * The Central Bank form's remaining fields, as wire name -> value.
+     *
+     * A bag rather than eighteen more constructor parameters: the fields are all
+     * short strings that go straight onto the multipart body, the queue can
+     * round-trip them through JSON without eighteen more put/get pairs, and
+     * adding a field later does not break every call site or any visit already
+     * sitting in the offline queue.
+     */
+    val formFields: Map<String, String?> = emptyMap(),
     /** Absolute paths of captured photos, uploaded as repeated `photos[]` parts. */
     val photoPaths: List<String>,
+    /** `photo_types[i]` tags `photos[i]` for section 12. Same size as photoPaths. */
+    val photoTypes: List<String> = emptyList(),
     val appVersion: String,
     /** Display label for the queue screen. Not sent to the server. */
     val customerLabel: String,
@@ -79,8 +93,9 @@ class VisitDraft(
         "recommendation" to recommendation?.takeIf { it.isNotBlank() },
         "remarks" to remarks?.takeIf { it.isNotBlank() },
         "signature" to signatureBase64?.takeIf { it.isNotBlank() },
+        "borrower_signature" to borrowerSignatureBase64?.takeIf { it.isNotBlank() },
         "app_version" to appVersion,
-    )
+    ) + formFields.filterValues { !it.isNullOrBlank() }
 
     fun toJson(): String = JSONObject().apply {
         put("visit_uid", visitUid)
@@ -102,7 +117,13 @@ class VisitDraft(
         put("recommendation", recommendation)
         put("remarks", remarks)
         put("signature", signatureBase64)
+        put("borrower_signature", borrowerSignatureBase64)
         put("photos", JSONArray(photoPaths))
+        put("photo_types", JSONArray(photoTypes))
+        // Nested so a future field cannot collide with a top-level key.
+        put("form_fields", JSONObject().apply {
+            formFields.forEach { (k, v) -> if (!v.isNullOrBlank()) put(k, v) }
+        })
         put("app_version", appVersion)
         put("customer_label", customerLabel)
     }.toString()
@@ -137,6 +158,24 @@ class VisitDraft(
                 recommendation = json.stringOrNull("recommendation"),
                 remarks = json.stringOrNull("remarks"),
                 signatureBase64 = json.stringOrNull("signature"),
+                borrowerSignatureBase64 = json.stringOrNull("borrower_signature"),
+                formFields = json.optJSONObject("form_fields")?.let { obj ->
+                    buildMap {
+                        val keys = obj.keys()
+                        while (keys.hasNext()) {
+                            val k = keys.next()
+                            val v = obj.optString(k, "")
+                            if (v.isNotEmpty()) put(k, v)
+                        }
+                    }
+                } ?: emptyMap(),
+                photoTypes = json.optJSONArray("photo_types")?.let { arr ->
+                    buildList {
+                        for (i in 0 until arr.length()) {
+                            add(arr.optString(i, "house"))
+                        }
+                    }
+                } ?: emptyList(),
                 photoPaths = buildList {
                     if (photos != null) {
                         for (i in 0 until photos.length()) {

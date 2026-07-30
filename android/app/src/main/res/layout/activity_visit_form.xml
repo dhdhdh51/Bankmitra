@@ -1,4 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+    BC FIELD VISIT REPORT (Central Bank of India) — the app version.
+
+    Laid out in the same 13 sections as the paper form, in the same order,
+    including its jump from 5 to 7, so an agent who knows the paper can fill this
+    without hunting. Sections 1, 2 and 3 are READ ONLY: they come from the
+    customer and loan records the branch already holds, and retyping them in the
+    field is how transcription errors get into a bank's books.
+
+    The root must stay a LinearLayout with the toolbar as its FIRST child:
+    BaseActivity hands the status-bar inset to @id/toolbar, and a toolbar nested
+    inside the ScrollView would scroll its own padding away.
+-->
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
@@ -12,7 +25,7 @@
         android:minHeight="?attr/actionBarSize"
         android:background="?attr/colorPrimary"
         app:navigationIcon="@android:drawable/ic_menu_revert"
-        app:title="@string/visit_title"
+        app:title="@string/vf_title"
         app:titleTextColor="@color/white" />
 
     <ScrollView
@@ -48,18 +61,331 @@
                 android:id="@+id/gpsBanner"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@drawable/bg_banner_warning"
-                android:drawablePadding="8dp"
-                android:padding="12dp"
-                android:text="@string/gps_acquiring"
-                android:textAppearance="?attr/textAppearanceBodyMedium" />
+                android:background="@drawable/bg_outlined_box"
+                android:padding="10dp"
+                android:textAppearance="?attr/textAppearanceBodySmall" />
 
-            <!-- Outcome -->
+            <!-- ===================== 1 / 2 / 3 : already on record ===== -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/visit_status_label"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_readonly_note"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="@color/text_secondary" />
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="4dp"
+                app:cardElevation="0dp"
+                app:strokeColor="@color/divider"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="12dp">
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vf_sec1"
+                        android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+                    <TextView android:id="@+id/prefillGeneral"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:lineSpacingExtra="2dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vf_sec2"
+                        android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+                    <TextView android:id="@+id/prefillBorrower"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:lineSpacingExtra="2dp" />
+
+                    <TextView
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="@string/vf_sec3"
+                        android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+                    <TextView android:id="@+id/prefillLoan"
+                        android:layout_width="match_parent" android:layout_height="wrap_content"
+                        android:textAppearance="?attr/textAppearanceBodySmall"
+                        android:lineSpacingExtra="2dp" />
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Loan Type belongs to section 3 but is the agent's to confirm. -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_loan_type"
                 android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <Spinner
+                android:id="@+id/loanType"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/loanTypeOtherLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="@string/vf_other_detail"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/loanTypeOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="80"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ============================ 4. current account status == -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec4"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <Spinner
+                android:id="@+id/accountStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/accountStatusOtherLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="@string/vf_other_detail"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/accountStatusOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="80"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <com.google.android.material.checkbox.MaterialCheckBox
+                android:id="@+id/rcIssued"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="44dp"
+                android:text="@string/vf_rc_issued" />
+
+            <!-- ================================= 5. contact status ===== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec5"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <Spinner
+                android:id="@+id/contactStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <LinearLayout
+                android:id="@+id/familyGroup"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:hint="@string/vf_family_name">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/metPerson"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="textPersonName"
+                        android:maxLength="150"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+
+                <com.google.android.material.textfield.TextInputLayout
+                    style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="6dp"
+                    android:hint="@string/vf_relation">
+
+                    <com.google.android.material.textfield.TextInputEditText
+                        android:id="@+id/metRelation"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:inputType="text"
+                        android:maxLength="80"
+                        android:maxLines="1" />
+                </com.google.android.material.textfield.TextInputLayout>
+            </LinearLayout>
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="@string/vf_contact_mobile">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/contactMobile"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="phone"
+                    android:maxLength="15"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ========================== 7. physical verification ===== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec7"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_alive"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/borrowerAlive"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_residence"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/residenceStatus"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_income"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/incomeSource"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/incomeSourceOtherLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:hint="@string/vf_other_detail"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/incomeSourceOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="80"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- =============================== 8. customer statement === -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec8"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/vf_statement_hint">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/remarks"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:gravity="top"
+                    android:inputType="textMultiLine|textCapSentences"
+                    android:minLines="4" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ============================ 9. recovery possibility ==== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec9"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_willing"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/willingToPay"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_payment_plan"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/paymentPlan"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
+
+            <!-- Kept from the earlier form: drives visit_status and the
+                 follow-up the server schedules. -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/visit_status_label"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Spinner
                 android:id="@+id/visitStatus"
@@ -67,69 +393,12 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp" />
 
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/customerAvailable"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:text="@string/customer_available_label" />
-
-            <com.google.android.material.materialswitch.MaterialSwitch
-                android:id="@+id/houseLocked"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="@string/house_locked_label" />
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
-                android:hint="@string/met_person_label">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/metPerson"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textPersonName|textCapWords"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/met_relation_label">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/metRelation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/occupation_label">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/occupation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="text"
-                    android:maxLines="1" />
-            </com.google.android.material.textfield.TextInputLayout>
-
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
                 android:text="@string/recovery_possibility_label"
-                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <Spinner
                 android:id="@+id/recoveryPossibility"
@@ -137,7 +406,6 @@
                 android:layout_height="wrap_content"
                 android:minHeight="48dp" />
 
-            <!-- Only required when visit_status == promise -->
             <LinearLayout
                 android:id="@+id/promiseGroup"
                 android:layout_width="match_parent"
@@ -150,8 +418,8 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="12dp"
-                    android:hint="@string/promise_amount_label">
+                    android:layout_marginTop="6dp"
+                    android:hint="@string/vf_promise_amount">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/promiseAmount"
@@ -166,61 +434,142 @@
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginTop="8dp"
-                    android:hint="@string/promise_date_label">
+                    android:layout_marginTop="6dp"
+                    android:hint="@string/vf_promise_date">
 
                     <com.google.android.material.textfield.TextInputEditText
                         android:id="@+id/promiseDate"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:clickable="true"
                         android:focusable="false"
-                        android:inputType="none"
-                        android:maxLines="1" />
+                        android:inputType="none" />
                 </com.google.android.material.textfield.TextInputLayout>
             </LinearLayout>
+
+            <!-- ======================= 10. reasons for non-payment ===== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec10"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rFinancial"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_financial" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rCrop"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_crop" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rCattle"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_cattle" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rIllness"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_illness" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rUnemployment"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_unemployment" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rDispute"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_dispute" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rOtherLoan"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_other_loan" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/rOther"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reason_other" />
+
+            <com.google.android.material.textfield.TextInputLayout
+                android:id="@+id/reasonOtherLayout"
+                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/vf_other_detail"
+                android:visibility="gone">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/reasonOther"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:inputType="text"
+                    android:maxLength="120"
+                    android:maxLines="1" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+            <!-- ============================ 11. recommendations ======== -->
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_sec11"
+                android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cGood"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_good" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cFollowup"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_followup" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cLegal"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_legal" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cRc"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_rc" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cOts"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_ots" />
+            <com.google.android.material.checkbox.MaterialCheckBox android:id="@+id/cOther"
+                android:layout_width="match_parent" android:layout_height="wrap_content"
+                android:minHeight="42dp" android:text="@string/vf_reco_other" />
 
             <com.google.android.material.textfield.TextInputLayout
                 style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="12dp"
                 android:hint="@string/recommendation_label">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/recommendation"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
+                    android:gravity="top"
+                    android:inputType="textMultiLine|textCapSentences"
                     android:minLines="2" />
             </com.google.android.material.textfield.TextInputLayout>
 
-            <com.google.android.material.textfield.TextInputLayout
-                style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="8dp"
-                android:hint="@string/remarks_label">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/remarks"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:inputType="textMultiLine"
-                    android:minLines="3" />
-            </com.google.android.material.textfield.TextInputLayout>
-
-            <!-- Photos -->
+            <!-- ================================ 12. evidence ========== -->
             <TextView
                 android:id="@+id/photoHeader"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/photos_section"
+                android:text="@string/vf_sec12"
                 android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_gps_captured"
+                android:textAppearance="?attr/textAppearanceLabelSmall"
+                android:textColor="@color/text_secondary" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_photo_kind"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <Spinner
+                android:id="@+id/photoKind"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:minHeight="48dp" />
 
             <androidx.recyclerview.widget.RecyclerView
                 android:id="@+id/photoStrip"
                 android:layout_width="match_parent"
-                android:layout_height="96dp" />
+                android:layout_height="96dp"
+                android:layout_marginTop="6dp" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/addPhotoAction"
@@ -230,17 +579,52 @@
                 android:text="@string/add_photo"
                 app:icon="@drawable/ic_camera" />
 
-            <!-- Signature -->
+            <!-- ================================ 13. declaration ======== -->
             <TextView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="@string/signature_section"
+                android:text="@string/vf_sec13"
                 android:textAppearance="@style/Widget.LRMS.SectionHeader" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@drawable/bg_outlined_box"
+                android:padding="10dp"
+                android:text="@string/vf_declaration"
+                android:textAppearance="?attr/textAppearanceBodySmall" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:text="@string/vf_sign_borrower"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
+
+            <com.lrms.recovery.ui.widget.SignaturePadView
+                android:id="@+id/borrowerSignaturePad"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@drawable/bg_outlined_box" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/clearBorrowerSignatureAction"
+                style="@style/Widget.Material3.Button.TextButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/vf_clear" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="6dp"
+                android:text="@string/vf_sign_agent"
+                android:textAppearance="?attr/textAppearanceLabelMedium" />
 
             <com.lrms.recovery.ui.widget.SignaturePadView
                 android:id="@+id/signaturePad"
                 android:layout_width="match_parent"
-                android:layout_height="160dp"
+                android:layout_height="150dp"
                 android:background="@drawable/bg_outlined_box" />
 
             <com.google.android.material.button.MaterialButton
@@ -248,7 +632,7 @@
                 style="@style/Widget.Material3.Button.TextButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/clear_signature" />
+                android:text="@string/vf_clear" />
 
             <com.google.android.material.button.MaterialButton
                 android:id="@+id/submitAction"
@@ -256,7 +640,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="20dp"
                 android:enabled="false"
-                android:text="@string/submit" />
+                android:text="@string/vf_submit" />
 
             <ProgressBar
                 android:id="@+id/progress"

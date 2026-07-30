@@ -208,4 +208,98 @@
     <string name="cancel">Cancel</string>
     <string name="ok">OK</string>
     <string name="loading">Loading…</string>
+
+    <!-- =================================================================
+         BC FIELD VISIT REPORT (Central Bank of India) — Hindi labels.
+         Section numbers match the printed form, including its jump from
+         5 to 7. Kept in the default values/ folder rather than values-hi/
+         because the form itself is Hindi: a field agent should see the same
+         wording as the paper they are used to, whatever the phone locale.
+         ================================================================= -->
+    <string name="vf_title">BC फील्ड विजिट रिपोर्ट</string>
+    <string name="vf_readonly_note">यह विवरण रिकॉर्ड से भरा गया है</string>
+
+    <string name="vf_sec1">1. सामान्य विवरण</string>
+    <string name="vf_visit_date">विजिट दिनांक</string>
+    <string name="vf_bc_code">BC Code</string>
+    <string name="vf_agent_name">BC Agent का नाम</string>
+    <string name="vf_branch">लिंक शाखा</string>
+    <string name="vf_village">ग्राम / स्थान</string>
+
+    <string name="vf_sec2">2. उधारकर्ता का विवरण</string>
+    <string name="vf_borrower_name">उधारकर्ता का नाम</string>
+    <string name="vf_guardian">पिता / पति का नाम</string>
+    <string name="vf_address">पता</string>
+    <string name="vf_mobile">मोबाइल नम्बर</string>
+    <string name="vf_aadhaar">आधार संख्या</string>
+
+    <string name="vf_sec3">3. ऋण खाते का विवरण</string>
+    <string name="vf_account_no">Loan Account Number</string>
+    <string name="vf_loan_type">Loan Type</string>
+    <string name="vf_outstanding">Outstanding Amount (₹)</string>
+    <string name="vf_overdue">Overdue Amount (₹)</string>
+    <string name="vf_npa_since">NPA Since</string>
+
+    <string name="vf_sec4">4. खाते की वर्तमान स्थिति</string>
+    <string name="vf_rc_issued">RC Issued</string>
+    <string name="vf_other_detail">अन्य — विवरण</string>
+
+    <string name="vf_sec5">5. ग्राहक से संपर्क की स्थिति</string>
+    <string name="vf_family_name">परिवार के सदस्य का नाम</string>
+    <string name="vf_relation">संबंध</string>
+    <string name="vf_contact_mobile">जिस मोबाइल नंबर पर संपर्क हुआ</string>
+
+    <string name="vf_sec7">7. भौतिक सत्यापन</string>
+    <string name="vf_alive">उधारकर्ता जीवित है</string>
+    <string name="vf_residence">वर्तमान निवास</string>
+    <string name="vf_income">व्यवसाय / आय का स्रोत</string>
+
+    <string name="vf_sec8">8. ग्राहक का कथन / विजिट का विवरण</string>
+    <string name="vf_statement_hint">ग्राहक ने क्या कहा, और विजिट में क्या पाया गया</string>
+
+    <string name="vf_sec9">9. वसूली की संभावना</string>
+    <string name="vf_willing">क्या ग्राहक भुगतान करने के लिए सहमत है?</string>
+    <string name="vf_payment_plan">भुगतान का तरीका</string>
+    <string name="vf_promise_amount">आश्वासित भुगतान राशि (₹)</string>
+    <string name="vf_promise_date">संभावित भुगतान तिथि</string>
+
+    <string name="vf_sec10">10. भुगतान न करने का कारण</string>
+    <string name="vf_reason_financial">आर्थिक समस्या</string>
+    <string name="vf_reason_crop">फसल खराब</string>
+    <string name="vf_reason_cattle">पशु हानि</string>
+    <string name="vf_reason_illness">बीमारी</string>
+    <string name="vf_reason_unemployment">बेरोजगारी</string>
+    <string name="vf_reason_dispute">विवाद</string>
+    <string name="vf_reason_other_loan">अन्य बैंक ऋण</string>
+    <string name="vf_reason_other">अन्य</string>
+
+    <string name="vf_sec11">11. BC Agent की टिप्पणी / अनुशंसा</string>
+    <string name="vf_reco_good">Recovery की संभावना अच्छी है।</string>
+    <string name="vf_reco_followup">नियमित Follow-up आवश्यक है।</string>
+    <string name="vf_reco_legal">कानूनी कार्यवाही हेतु विचार किया जाए।</string>
+    <string name="vf_reco_rc">RC जारी करने की कार्यवाही की जाए।</string>
+    <string name="vf_reco_ots">KRM OTS योजना के अंतर्गत निस्तारण कराया जा सकता है।</string>
+    <string name="vf_reco_other">अन्य</string>
+
+    <string name="vf_sec12">12. संलग्न साक्ष्य</string>
+    <string name="vf_photo_kind">यह फोटो किसका है?</string>
+    <string name="vf_add_photo_customer">ग्राहक के साथ फोटो</string>
+    <string name="vf_add_photo_house">घर का फोटो</string>
+    <string name="vf_add_photo_document">आधार / दस्तावेज़</string>
+    <string name="vf_add_photo_other">अन्य फोटो</string>
+    <string name="vf_gps_captured">GPS लोकेशन स्वतः दर्ज हो रही है</string>
+
+    <string name="vf_sec13">13. घोषणा</string>
+    <string name="vf_declaration">मैं प्रमाणित करता हूँ कि उपरोक्त विवरण मेरे द्वारा स्थल पर जाकर किए गए वास्तविक निरीक्षण एवं सत्यापन के आधार पर तैयार किया गया है तथा इसमें अंकित जानकारी मेरे सर्वोत्तम ज्ञान एवं विश्वास के अनुसार सही है।</string>
+    <string name="vf_sign_borrower">उधारकर्ता के हस्ताक्षर / अंगूठा निशान</string>
+    <string name="vf_sign_agent">BC Agent के हस्ताक्षर</string>
+    <string name="vf_clear">मिटाएँ</string>
+    <string name="vf_submit">रिपोर्ट जमा करें</string>
+
+    <!-- validation -->
+    <string name="vf_err_statement">ग्राहक का कथन / विजिट का विवरण भरें।</string>
+    <string name="vf_err_photo">कम से कम एक फोटो लेना ज़रूरी है।</string>
+    <string name="vf_err_sign_agent">BC Agent के हस्ताक्षर करें।</string>
+    <string name="vf_err_contact">ग्राहक से संपर्क की स्थिति चुनें।</string>
+    <string name="vf_err_promise">आश्वासित भुगतान राशि और तिथि भरें।</string>
 </resources>
