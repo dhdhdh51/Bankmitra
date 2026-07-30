@@ -21,7 +21,7 @@ use App\Core\View;
         </div>
     </div>
     <div class="ms-auto">
-        <a class="btn btn-sm btn-outline-success" href="<?= View::e(View::url('uploads/template')) ?>">
+        <a class="btn btn-sm btn-outline-success" href="<?= View::e(View::url('imports/template')) ?>">
             <i class="bi bi-download me-1"></i>Download template
         </a>
     </div>
@@ -40,7 +40,7 @@ use App\Core\View;
     <div class="col-lg-7">
         <div class="card h-100">
             <div class="card-header">Import a file</div>
-            <form method="post" action="<?= View::e(View::url('uploads/import')) ?>" enctype="multipart/form-data">
+            <form method="post" action="<?= View::e(View::url('imports/import')) ?>" enctype="multipart/form-data">
                 <?= Csrf::field() ?>
                 <div class="card-body">
                     <div class="mb-3">
@@ -89,7 +89,7 @@ use App\Core\View;
                     Equal distribution gives the next account to whichever active BC agent in that
                     branch currently has the smallest workload, highest-overdue accounts first.
                 </p>
-                <form method="post" action="<?= View::e(View::url('uploads/allocate')) ?>"
+                <form method="post" action="<?= View::e(View::url('imports/allocate')) ?>"
                       data-confirm="Distribute all unallocated accounts equally among branch BC agents?">
                     <?= Csrf::field() ?>
                     <button class="btn btn-outline-success" type="submit" <?= $unallocated === 0 ? 'disabled' : '' ?>>
@@ -165,7 +165,7 @@ use App\Core\View;
                         <td class="text-end">
                             <?php if (!empty($batch['error_report'])): ?>
                                 <a class="btn btn-sm btn-outline-danger"
-                                   href="<?= View::e(View::url('uploads/' . (int) $batch['id'] . '/errors')) ?>">
+                                   href="<?= View::e(View::url('imports/' . (int) $batch['id'] . '/errors')) ?>">
                                     <i class="bi bi-download"></i> Rejected rows
                                 </a>
                             <?php endif; ?>

@@ -96,11 +96,25 @@ $router->post('loans/{id:\d+}/allocate', [LoanController::class, 'allocate']);
 $router->get('loans/{id:\d+}/statement', [LoanController::class, 'statement']);
 
 // Excel upload + allocation engine
-$router->get('uploads', [UploadController::class, 'index']);
-$router->any('uploads/import', [UploadController::class, 'import']);
-$router->get('uploads/template', [UploadController::class, 'template']);
-$router->get('uploads/{id:\d+}/errors', [UploadController::class, 'errors']);
-$router->any('uploads/allocate', [UploadController::class, 'allocate']);
+//
+// IMPORTANT: this route group is called "imports", NOT "uploads".
+// `uploads/` is a real directory in the web root (visit photos and selfies are
+// served straight from it, see PhotoStorageService::publicUrl). The .htaccess
+// front-controller rule deliberately skips rewriting when the request path is an
+// existing file or directory:
+//
+//     RewriteCond %{REQUEST_FILENAME} -d
+//     RewriteRule ^ - [L]
+//
+// so a request for /uploads would be handled by the web server as a directory
+// listing - which Options -Indexes then refuses - and would never reach PHP.
+// Naming this group "uploads" makes the page unreachable (404/403 depending on
+// whether the host runs Apache or LiteSpeed). Do not rename it back.
+$router->get('imports', [UploadController::class, 'index']);
+$router->any('imports/import', [UploadController::class, 'import']);
+$router->get('imports/template', [UploadController::class, 'template']);
+$router->get('imports/{id:\d+}/errors', [UploadController::class, 'errors']);
+$router->any('imports/allocate', [UploadController::class, 'allocate']);
 
 // Visits
 $router->get('visits', [VisitController::class, 'index']);
