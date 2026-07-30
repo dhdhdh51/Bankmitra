@@ -124,6 +124,17 @@ class CustomerDetailActivity : BaseActivity() {
         }
     }
 
+    /**
+     * The loan id to hand to the visit / recovery form.
+     *
+     * Prefers the one parsed from the response, but falls back to [loanId] - the
+     * value this screen was opened with, already validated as > 0 in onCreate.
+     * An older server that omits `loan_id` from GET /loans/{id} therefore cannot
+     * strand the agent on "this visit has no loan attached".
+     */
+    private fun effectiveLoanId(): Int =
+        detail?.summary?.loanId?.takeIf { it > 0 } ?: loanId
+
     private fun startVisit() {
         val s = detail?.summary
         if (s == null) {
@@ -132,7 +143,7 @@ class CustomerDetailActivity : BaseActivity() {
         }
         startActivity(
             Intent(this, VisitFormActivity::class.java)
-                .putExtra(VisitFormActivity.EXTRA_LOAN_ID, s.loanId)
+                .putExtra(VisitFormActivity.EXTRA_LOAN_ID, effectiveLoanId())
                 .putExtra(VisitFormActivity.EXTRA_CUSTOMER_LABEL, "${s.fullName} \u2014 ${s.accountNumber}"),
         )
     }
@@ -145,7 +156,7 @@ class CustomerDetailActivity : BaseActivity() {
         }
         startActivity(
             Intent(this, RecoveryActivity::class.java)
-                .putExtra(RecoveryActivity.EXTRA_LOAN_ID, s.loanId)
+                .putExtra(RecoveryActivity.EXTRA_LOAN_ID, effectiveLoanId())
                 .putExtra(RecoveryActivity.EXTRA_CUSTOMER_LABEL, "${s.fullName} \u2014 ${s.accountNumber}"),
         )
     }

@@ -153,6 +153,12 @@ final class CustomerApiController extends ApiController
         Response::ok([
             'loan' => [
                 'id'                 => (int) $loan['loan_id'],
+                // Also expose it under the same name the list endpoint uses.
+                // The app flattens loan + customer into one lookup, so a bare
+                // "id" is ambiguous - customer.id used to win and the loan id was
+                // lost, which left the visit form with loan_id 0 and the message
+                // "this visit has no loan attached".
+                'loan_id'            => (int) $loan['loan_id'],
                 'account_number'     => (string) $loan['account_number'],
                 'product_name'       => $loan['product_name'],
                 'scheme_code'        => $loan['scheme_code'],
@@ -184,6 +190,8 @@ final class CustomerApiController extends ApiController
             ],
             'customer' => [
                 'id'            => (int) $loan['customer_id'],
+                // Unambiguous alias, for the same reason as loan_id above.
+                'customer_id'   => (int) $loan['customer_id'],
                 'cif_number'    => (string) $loan['cif_number'],
                 'full_name'     => (string) $loan['full_name'],
                 'guardian_name' => $loan['guardian_name'],

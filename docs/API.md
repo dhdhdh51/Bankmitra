@@ -341,6 +341,22 @@ Query: `search`, `village`, `status`, `page`, `per_page` (max 200).
 Full profile: loan, customer (with **unmasked** mobile — the agent needs to call
 them), last 20 visits, last 20 recoveries, open follow-ups.
 
+The `loan` object carries both `id` and `loan_id`, and `customer` carries both
+`id` and `customer_id`, with the same value in each pair. Use the **explicit**
+names. Clients that flatten the two objects into one map — the Android app does,
+so a single lookup can serve both this endpoint and `GET /customers` — would
+otherwise see `customer.id` overwrite `loan.id` and lose the loan id entirely.
+That is what produced *"this visit has no loan attached and cannot be
+submitted"*: `loan_id` was absent, so the app defaulted it to 0.
+
+```json
+{
+  "loan":     { "id": 86, "loan_id": 86, "account_number": "38291047561", "...": "..." },
+  "customer": { "id": 18, "customer_id": 18, "full_name": "Suresh Prasad", "...": "..." },
+  "visits": [], "recoveries": [], "followups": []
+}
+```
+
 ### `POST /visits` — `multipart/form-data`
 
 GPS is mandatory. Submission is rejected when GPS is off, coordinates are 0,0,
