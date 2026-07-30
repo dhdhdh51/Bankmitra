@@ -1,0 +1,2 @@
+# Keeps this folder in git. Contents are ignored (see /.gitignore).
+# On cPanel this folder must be writable: chmod 755

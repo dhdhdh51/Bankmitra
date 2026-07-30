@@ -1,0 +1,33 @@
+# =====================================================================
+# LRMS - deploy branch ignores
+# ---------------------------------------------------------------------
+# This branch mirrors public_html exactly, so the paths here have no
+# "backend/" prefix.
+# =====================================================================
+
+# SECRET - your real database credentials and AES app_key live here.
+# Never commit this file.
+config/config.php
+
+# Runtime data written by the application. The folder structure is kept
+# (via .gitkeep), the contents are not.
+storage/logs/*
+!storage/logs/.gitkeep
+storage/cache/*
+!storage/cache/.gitkeep
+storage/backups/*
+!storage/backups/.gitkeep
+
+uploads/visits/*
+uploads/attendance/*
+uploads/excel/*
+uploads/temp/*
+!uploads/**/.gitkeep
+!uploads/.htaccess
+
+# OS / editor noise
+.DS_Store
+Thumbs.db
+*.swp
+*~
+*.log

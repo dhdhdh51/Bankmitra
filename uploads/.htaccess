@@ -1,0 +1,44 @@
+# ---------------------------------------------------------------------
+# LRMS uploads - serve files, never execute them.
+# ---------------------------------------------------------------------
+# Visit photos, selfies and imported spreadsheets land here. If an attacker
+# ever managed to upload a .php file, this file makes sure the web server
+# refuses to run it.
+# ---------------------------------------------------------------------
+
+# Kill every scripting handler in this directory tree.
+<IfModule mod_php.c>
+    php_flag engine off
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header always set Content-Disposition "inline"
+</IfModule>
+
+RemoveHandler .php .phtml .php3 .php4 .php5 .php7 .phps .pl .py .cgi .sh .asp .aspx .jsp
+RemoveType .php .phtml .php3 .php4 .php5 .php7 .phps .pl .py .cgi .sh
+AddType text/plain .php .phtml .php3 .php4 .php5 .php7 .phps .pl .py .cgi .sh
+
+# Only ever allow the file types we actually create.
+<FilesMatch "\.(?i:jpg|jpeg|png|webp|gif|pdf|csv|xlsx|xls|txt)$">
+    <IfModule mod_authz_core.c>
+        Require all granted
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Allow from all
+    </IfModule>
+</FilesMatch>
+
+<FilesMatch "\.(?i:php|phtml|php3|php4|php5|php7|phps|pl|py|cgi|sh|htaccess|ini|conf|sql|log)$">
+    <IfModule mod_authz_core.c>
+        Require all denied
+    </IfModule>
+    <IfModule !mod_authz_core.c>
+        Order allow,deny
+        Deny from all
+    </IfModule>
+</FilesMatch>
+
+Options -Indexes -ExecCGI

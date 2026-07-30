@@ -1,0 +1,27 @@
+# ---------------------------------------------------------------------
+# LRMS API v1 - local rewrite
+# ---------------------------------------------------------------------
+# The root .htaccess already routes /api/v1/* here, but this file makes the
+# API work even when the root rules are unavailable (some hosts scope
+# RewriteBase oddly in subfolders).
+# ---------------------------------------------------------------------
+
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Restore the Authorization header when the host strips it.
+    RewriteCond %{HTTP:Authorization} .
+    RewriteRule ^ - [E=HTTP_AUTHORIZATION:%{HTTP:Authorization}]
+
+    RewriteCond %{REQUEST_FILENAME} !-f
+    RewriteCond %{REQUEST_FILENAME} !-d
+    RewriteRule ^(.*)$ index.php?_route=$1 [QSA,L]
+</IfModule>
+
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options "nosniff"
+    Header unset X-Powered-By
+</IfModule>
+
+DirectoryIndex index.php
+Options -Indexes
