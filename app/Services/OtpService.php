@@ -73,7 +73,7 @@ final class OtpService
             0
         );
         if ($hourly >= 10) {
-            return $this->result(false, 'rate_limited', 'Too many OTP requests for this number. Please try again after an hour.');
+            return $this->result(false, 'rate_limited', 'Too many OTP requests for this account. Please try again after an hour.');
         }
 
         // ---- check the channel is usable before burning an OTP ---------

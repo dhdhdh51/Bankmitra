@@ -53,7 +53,7 @@ final class AuthApiController extends ApiController
     public function requestOtp(): void
     {
         $identifier = $this->request->str('identifier');
-        $type = $this->request->str('identifier_type', 'mobile');
+        $type = $this->request->str('identifier_type', 'email');
         $purpose = $this->request->str('purpose', 'login');
 
         $validator = new Validator($this->request->all());
@@ -85,7 +85,8 @@ final class AuthApiController extends ApiController
                         'expires_in_seconds'   => Settings::getInt('security.otp_expiry_minutes', 10) * 60,
                         'resend_after_seconds' => Settings::getInt('security.otp_resend_seconds', 60),
                     ],
-                    'If this number is registered, an OTP has been sent to it.'
+                    'If this ' . ($type === 'mobile' ? 'number' : 'email address')
+                        . ' is registered, an OTP has been sent to it.'
                 );
                 return;
             }
@@ -154,7 +155,7 @@ final class AuthApiController extends ApiController
         }
 
         $identifier = $this->request->str('identifier');
-        $type = $this->request->str('identifier_type', 'mobile');
+        $type = $this->request->str('identifier_type', 'email');
 
         $verification = (new OtpService())->verify($identifier, $type, 'login', $this->request->str('otp'));
         if (!$verification['ok']) {
@@ -216,7 +217,7 @@ final class AuthApiController extends ApiController
     public function register(): void
     {
         $data = $this->request->all();
-        $type = $this->request->str('identifier_type', 'mobile');
+        $type = $this->request->str('identifier_type', 'email');
 
         $validator = new Validator($data);
         $validator->required('invite_code')
@@ -263,6 +264,18 @@ final class AuthApiController extends ApiController
 
         $mobile = $type === 'mobile' ? $this->request->str('identifier') : $this->request->str('mobile');
         $email = $type === 'email' ? $this->request->str('identifier') : $this->request->str('email');
+
+        // Email is the account's identity, so it cannot be skipped even when the
+        // OTP went to a mobile. Mobile stays optional.
+        if ($email === '') {
+            Response::fail(
+                'An email address is required to create an account.',
+                'validation_failed',
+                422,
+                ['email' => 'Enter your email address.']
+            );
+            return;
+        }
 
         $result = $service->registerWithInvite($inviteResult['invite'], [
             'full_name'     => $this->request->str('full_name'),
@@ -312,7 +325,7 @@ final class AuthApiController extends ApiController
         }
 
         $identifier = $this->request->str('identifier');
-        $type = $this->request->str('identifier_type', 'mobile');
+        $type = $this->request->str('identifier_type', 'email');
 
         $verification = (new OtpService())->verify($identifier, $type, 'reset_password', $this->request->str('otp'));
         if (!$verification['ok']) {

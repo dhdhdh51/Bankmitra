@@ -345,8 +345,10 @@ final class AuthService
         $mobileHash = Crypto::blindIndex($data['mobile'] ?? null, 'mobile');
         $emailHash = Crypto::blindIndex($data['email'] ?? null, 'email');
 
-        if ($mobileHash === null && $emailHash === null) {
-            return ['ok' => false, 'code' => 'validation_failed', 'message' => 'A mobile number or email address is required.', 'user_id' => null, 'pending' => false];
+        // Email is the account identity and the OTP channel, so it is mandatory.
+        // Mobile is optional and only used for SMS reminders.
+        if ($emailHash === null) {
+            return ['ok' => false, 'code' => 'validation_failed', 'message' => 'An email address is required.', 'user_id' => null, 'pending' => false];
         }
 
         // Uniqueness (the DB also enforces this, but a clear message is nicer).

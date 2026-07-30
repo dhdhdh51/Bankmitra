@@ -81,23 +81,25 @@ $old = static fn (string $key): string => Session::oldInput($key);
         </div>
 
         <div class="mb-3">
-            <label class="form-label" for="mobile">Mobile number</label>
-            <input type="tel" inputmode="numeric" class="form-control<?= isset($errors['mobile']) ? ' is-invalid' : '' ?>"
-                   id="mobile" name="mobile" value="<?= View::e($old('mobile')) ?>"
-                   placeholder="9876543210" required>
-            <?php if (isset($errors['mobile'])): ?>
-                <div class="invalid-feedback"><?= View::e($errors['mobile']) ?></div>
+            <label class="form-label" for="email">Email</label>
+            <input type="email" class="form-control<?= isset($errors['email']) ? ' is-invalid' : '' ?>"
+                   id="email" name="email" value="<?= View::e($old('email')) ?>"
+                   placeholder="name@example.com" required>
+            <?php if (isset($errors['email'])): ?>
+                <div class="invalid-feedback"><?= View::e($errors['email']) ?></div>
             <?php endif; ?>
             <div class="form-text">The OTP will be sent here. This becomes your login ID.</div>
         </div>
 
         <div class="mb-3">
-            <label class="form-label" for="email">Email <span class="text-muted fw-normal">(optional)</span></label>
-            <input type="email" class="form-control<?= isset($errors['email']) ? ' is-invalid' : '' ?>"
-                   id="email" name="email" value="<?= View::e($old('email')) ?>">
-            <?php if (isset($errors['email'])): ?>
-                <div class="invalid-feedback"><?= View::e($errors['email']) ?></div>
+            <label class="form-label" for="mobile">Mobile number <span class="text-muted fw-normal">(optional)</span></label>
+            <input type="tel" inputmode="numeric" class="form-control<?= isset($errors['mobile']) ? ' is-invalid' : '' ?>"
+                   id="mobile" name="mobile" value="<?= View::e($old('mobile')) ?>"
+                   placeholder="9876543210">
+            <?php if (isset($errors['mobile'])): ?>
+                <div class="invalid-feedback"><?= View::e($errors['mobile']) ?></div>
             <?php endif; ?>
+            <div class="form-text">Only used for SMS reminders. Not needed to sign in.</div>
         </div>
 
         <div class="mb-3">

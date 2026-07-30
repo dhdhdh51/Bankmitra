@@ -43,7 +43,7 @@ $otpSent = $otpSent ?? false;
         <?= Csrf::field() ?>
 
         <div class="mb-3">
-            <label class="form-label" for="identifier">Mobile, email or employee code</label>
+            <label class="form-label" for="identifier">Email, mobile or employee code</label>
             <input type="text" class="form-control<?= isset($errors['identifier']) ? ' is-invalid' : '' ?>"
                    id="identifier" name="identifier" value="<?= View::e($identifier) ?>"
                    autocomplete="username" required autofocus>
@@ -90,7 +90,7 @@ $otpSent = $otpSent ?? false;
             <?= Csrf::field() ?>
 
             <div class="mb-3">
-                <label class="form-label" for="otp_identifier">Registered mobile or email</label>
+                <label class="form-label" for="otp_identifier">Registered email address</label>
                 <input type="text" class="form-control<?= isset($errors['identifier']) ? ' is-invalid' : '' ?>"
                        id="otp_identifier" name="identifier" value="<?= View::e($identifier) ?>"
                        autocomplete="username" required autofocus
