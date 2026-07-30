@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Regenerate the deploy/public_html branch from the current branch.
+# Regenerate the hosting branch (and its mirrors) from the current branch.
 # ---------------------------------------------------------------------------
 # The deploy branch is a FLATTENED copy of backend/ (plus database/) so that the
 # root of the branch is the root of public_html. That makes it uploadable from a
@@ -10,13 +10,20 @@
 #   ./tools/sync-deploy-branch.sh
 #
 # Then push the result:
-#   git push origin deploy/public_html
+#   git push origin hosting
 #
 # The script only ever commits to $DEPLOY_BRANCH and returns you to the branch
 # you started on. It refuses to run with a dirty working tree.
 set -euo pipefail
 
-DEPLOY_BRANCH="deploy/public_html"
+# The canonical hosting branch. Simple name, no slash, because a slash makes the
+# branch awkward to find in the GitHub mobile UI and produces an odd folder name
+# in the downloaded ZIP.
+DEPLOY_BRANCH="hosting"
+
+# Kept in step with DEPLOY_BRANCH so an older bookmark does not serve stale code.
+MIRROR_BRANCHES=("deploy/public_html")
+
 SOURCE_DIR="backend"
 EXTRA_DIRS=("database")
 # Files that live in backend/ but must NOT reach a live host.
@@ -86,7 +93,23 @@ else
 fi
 
 echo "Tracked files on $DEPLOY_BRANCH: $(git ls-files | wc -l)"
+DEPLOY_SHA="$(git rev-parse HEAD)"
 git checkout -q "$SOURCE_BRANCH"
 echo "Back on $SOURCE_BRANCH."
+
+# Point the mirrors at the same commit. They are not checked out, so moving the
+# ref is enough and cannot touch the working tree.
+for mirror in "${MIRROR_BRANCHES[@]}"; do
+    if [[ "$mirror" == "$DEPLOY_BRANCH" ]]; then
+        continue
+    fi
+    git branch -f "$mirror" "$DEPLOY_SHA"
+    echo "Mirrored $mirror -> $(git rev-parse --short "$mirror")"
+done
+
 echo
-echo "Next: git push origin $DEPLOY_BRANCH"
+echo "Next:"
+echo "  git push origin $DEPLOY_BRANCH"
+for mirror in "${MIRROR_BRANCHES[@]}"; do
+    echo "  git push origin $mirror"
+done
