@@ -282,14 +282,16 @@ final class AuthController extends Controller
                 return;
             }
 
+            // Email is the identity and the OTP channel. Mobile is optional and
+            // only used later for SMS reminders.
             $validator = new Validator($this->request->all());
             $validator->required('full_name')->maxLen('full_name', 150)
-                ->required('mobile')->mobile('mobile')
+                ->required('email')->email('email')
                 ->required('password')->strongPassword('password')
                 ->required('password_confirm')->matches('password_confirm', 'password', 'The passwords do not match.')
                 ->maxLen('employee_code', 40);
-            if ($this->request->str('email') !== '') {
-                $validator->email('email');
+            if ($this->request->str('mobile') !== '') {
+                $validator->mobile('mobile');
             }
 
             if ($validator->fails()) {
@@ -304,7 +306,19 @@ final class AuthController extends Controller
             }
 
             // Reject an identifier that is already in use before sending an OTP.
-            if ($this->service->findByIdentifier($this->request->str('mobile')) !== null) {
+            if ($this->service->findByIdentifier($this->request->str('email')) !== null) {
+                Session::flashInput($this->request->all());
+                $this->view('auth/register', [
+                    'pageTitle' => 'Register',
+                    'step' => 'profile',
+                    'invite' => $inviteResult['invite'],
+                    'errors' => ['email' => 'This email address is already registered. Try signing in instead.'],
+                ], 'auth');
+                return;
+            }
+
+            $typedMobile = $this->request->str('mobile');
+            if ($typedMobile !== '' && $this->service->findByIdentifier($typedMobile) !== null) {
                 Session::flashInput($this->request->all());
                 $this->view('auth/register', [
                     'pageTitle' => 'Register',
@@ -316,8 +330,8 @@ final class AuthController extends Controller
             }
 
             $otp = (new OtpService())->issue(
-                $this->request->str('mobile'),
-                'mobile',
+                $this->request->str('email'),
+                'email',
                 'register',
                 null,
                 $this->request->ip()
@@ -372,8 +386,8 @@ final class AuthController extends Controller
         }
 
         $verification = (new OtpService())->verify(
-            (string) $pending['mobile'],
-            'mobile',
+            (string) $pending['email'],
+            'email',
             'register',
             $this->request->str('otp')
         );
@@ -395,8 +409,8 @@ final class AuthController extends Controller
 
         $result = $this->service->registerWithInvite($inviteResult['invite'], [
             'full_name'     => (string) $pending['full_name'],
-            'mobile'        => (string) $pending['mobile'],
-            'email'         => ((string) $pending['email']) !== '' ? (string) $pending['email'] : null,
+            'mobile'        => ((string) $pending['mobile']) !== '' ? (string) $pending['mobile'] : null,
+            'email'         => (string) $pending['email'],
             'password'      => (string) $pending['password'],
             'employee_code' => ((string) $pending['employee_code']) !== '' ? (string) $pending['employee_code'] : null,
             'bc_code'       => ((string) $pending['employee_code']) !== '' ? (string) $pending['employee_code'] : null,

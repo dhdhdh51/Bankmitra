@@ -137,14 +137,19 @@ Response
 
 ```json
 {
-  "identifier": "9876543210",
-  "identifier_type": "mobile",
+  "identifier": "ramesh@example.com",
+  "identifier_type": "email",
   "purpose": "login"
 }
 ```
 
-* `identifier_type`: `mobile` | `email`
+* `identifier_type`: `email` (default) | `mobile`
 * `purpose`: `login` | `register` | `reset_password`
+
+Email is the default channel because email is the mandatory identifier for every
+account; a mobile number is optional. Send `identifier_type: mobile` only when
+you actually want an SMS, and note that it fails with `otp_delivery_failed` if no
+SMS gateway is configured in the admin panel.
 
 Response (the OTP itself is **never** returned):
 ```json
@@ -159,8 +164,8 @@ Response (the OTP itself is **never** returned):
 
 ```json
 {
-  "identifier": "9876543210",
-  "identifier_type": "mobile",
+  "identifier": "ramesh@example.com",
+  "identifier_type": "email",
   "purpose": "login",
   "otp": "483920",
   "device_id": "a1b2c3d4e5f6a7b8",
@@ -185,7 +190,7 @@ Response — see [session payload](#session-payload).
 }
 ```
 
-`identifier` accepts mobile, email **or** employee code.
+`identifier` accepts email, mobile **or** employee code.
 
 Response — see [session payload](#session-payload).
 
@@ -197,10 +202,10 @@ Two-step: request an OTP with `purpose: register` first, then:
 {
   "invite_code": "K7M2QP9XZR",
   "full_name": "Ramesh Kumar",
-  "identifier": "9876543210",
-  "identifier_type": "mobile",
+  "identifier": "ramesh@example.com",
+  "identifier_type": "email",
   "otp": "483920",
-  "email": "ramesh@example.com",
+  "mobile": "9876543210",
   "password": "Secret@123",
   "employee_code": "BC0142",
   "bc_code": "BC0142",
@@ -477,12 +482,12 @@ curl -s $BASE/ping | python3 -m json.tool
 # 2. request an OTP
 curl -s -X POST $BASE/auth/otp/request \
   -H 'Content-Type: application/json' \
-  -d '{"identifier":"9876543210","identifier_type":"mobile","purpose":"login"}'
+  -d '{"identifier":"ramesh@example.com","identifier_type":"email","purpose":"login"}'
 
 # 3. verify and get a token
 TOKEN=$(curl -s -X POST $BASE/auth/otp/verify \
   -H 'Content-Type: application/json' \
-  -d '{"identifier":"9876543210","identifier_type":"mobile","purpose":"login",
+  -d '{"identifier":"ramesh@example.com","identifier_type":"email","purpose":"login",
        "otp":"483920","device_id":"testdevice001","device_model":"curl",
        "os_version":"0","app_version":"1.0.0"}' | python3 -c 'import sys,json;print(json.load(sys.stdin)["data"]["token"])')
 

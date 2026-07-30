@@ -31,8 +31,8 @@
     <string name="server_url_label">Server URL</string>
     <string name="server_url_helper">Ask your administrator for this address. It is saved on this device only.</string>
     <string name="server_url">Server URL</string>
-    <string name="identifier_label">Mobile, email or employee code</string>
-    <string name="identifier">Mobile, email or employee code</string>
+    <string name="identifier_label">Email, mobile or employee code</string>
+    <string name="identifier">Email, mobile or employee code</string>
     <string name="password_label">Password</string>
     <string name="password">Password</string>
     <string name="otp_label">One-time password</string>
@@ -62,7 +62,10 @@
     <string name="full_name">Full name</string>
     <string name="mobile_label">Mobile number</string>
     <string name="mobile">Mobile number</string>
-    <string name="email_label">Email (optional)</string>
+    <string name="email_label">Email</string>
+    <string name="email_helper">The OTP is sent here. This is your login ID.</string>
+    <string name="mobile_label_optional">Mobile number (optional)</string>
+    <string name="mobile_helper">Only for SMS reminders. Not needed to sign in.</string>
     <string name="email_optional">Email (optional)</string>
     <string name="employee_code_label">Employee / BC code (optional)</string>
     <string name="employee_code_optional">Employee / BC code (optional)</string>

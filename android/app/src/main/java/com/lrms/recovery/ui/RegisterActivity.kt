@@ -95,11 +95,14 @@ class RegisterActivity : BaseActivity() {
 
     private fun mobile(): String = binding.mobile.text?.toString()?.trim().orEmpty()
 
+    /** The account identifier: email, not mobile. The OTP is emailed here. */
+    private fun email(): String = binding.email.text?.toString()?.trim().orEmpty()
+
     private fun requestOtp() {
         if (!validateDetails(requireOtp = false)) return
         busy(true)
         lifecycleScope.launch {
-            when (val result = repo.requestOtp(mobile(), purpose = "register")) {
+            when (val result = repo.requestOtp(email(), purpose = "register")) {
                 is ApiResult.Success -> {
                     busy(false)
                     otpRequested = true
@@ -142,8 +145,16 @@ class RegisterActivity : BaseActivity() {
             showInline("Enter your full name.")
             return false
         }
-        if (mobile().length < 10) {
-            showInline("Enter a valid mobile number.")
+        // Email is required - it is the login ID and where the OTP goes.
+        val email = email()
+        if (email.isEmpty() || !email.contains('@') || !email.contains('.')) {
+            showInline("Enter a valid email address.")
+            return false
+        }
+        // Mobile is optional, but if typed it has to look like a number.
+        val mobile = mobile()
+        if (mobile.isNotEmpty() && mobile.length < 10) {
+            showInline("Enter a valid mobile number, or leave it blank.")
             return false
         }
         val password = binding.password.text?.toString().orEmpty()
@@ -172,9 +183,9 @@ class RegisterActivity : BaseActivity() {
             val result = repo.register(
                 inviteCode = code,
                 fullName = binding.fullName.text?.toString()?.trim().orEmpty(),
-                identifier = mobile(),
+                identifier = email(),
                 otp = binding.otp.text?.toString()?.trim().orEmpty(),
-                email = binding.email.text?.toString()?.trim(),
+                mobile = mobile(),
                 password = binding.password.text?.toString().orEmpty(),
                 employeeCode = binding.employeeCode.text?.toString()?.trim(),
             )

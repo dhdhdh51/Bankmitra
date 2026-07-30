@@ -119,19 +119,22 @@
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 
+                <!-- Email first and required: it is the login ID and the OTP is
+                     sent here. Mobile is optional, for SMS reminders only. -->
                 <com.google.android.material.textfield.TextInputLayout
                     style="@style/Widget.Material3.TextInputLayout.OutlinedBox"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="@string/mobile_label">
+                    app:helperText="@string/email_helper"
+                    app:helperTextEnabled="true"
+                    android:hint="@string/email_label">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/mobile"
+                        android:id="@+id/email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="phone"
-                        android:maxLength="15"
+                        android:inputType="textEmailAddress"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 
@@ -140,13 +143,16 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginTop="12dp"
-                    android:hint="@string/email_label">
+                    app:helperText="@string/mobile_helper"
+                    app:helperTextEnabled="true"
+                    android:hint="@string/mobile_label_optional">
 
                     <com.google.android.material.textfield.TextInputEditText
-                        android:id="@+id/email"
+                        android:id="@+id/mobile"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:inputType="textEmailAddress"
+                        android:inputType="phone"
+                        android:maxLength="15"
                         android:maxLines="1" />
                 </com.google.android.material.textfield.TextInputLayout>
 

@@ -96,11 +96,11 @@ class LrmsRepository private constructor(context: Context) {
         purpose: String,
     ): ApiResult<OtpChallenge> {
         val type = identifierType(identifier)
-        // Employee codes cannot receive an OTP; fall back to mobile so the server
-        // returns a proper validation error instead of a 500.
+        // Employee codes cannot receive an OTP; fall back to email (the default
+        // channel) so the server returns a proper validation error, not a 500.
         val body = JSONObject()
             .put("identifier", identifier.trim())
-            .put("identifier_type", if (type == "employee_code") "mobile" else type)
+            .put("identifier_type", if (type == "employee_code") "email" else type)
             .put("purpose", purpose)
         return api.postJson("/auth/otp/request", body).mapObject { OtpChallenge.from(it) }
     }
@@ -113,7 +113,7 @@ class LrmsRepository private constructor(context: Context) {
         val type = identifierType(identifier)
         val body = JSONObject()
             .put("identifier", identifier.trim())
-            .put("identifier_type", if (type == "employee_code") "mobile" else type)
+            .put("identifier_type", if (type == "employee_code") "email" else type)
             .put("purpose", purpose)
             .put("otp", otp.trim())
             .merge(deviceFields())
@@ -132,12 +132,17 @@ class LrmsRepository private constructor(context: Context) {
             .alsoPersistSession()
     }
 
+    /**
+     * @param identifier the email address the OTP was sent to - this is the
+     *                   account identity
+     * @param mobile     optional, only used for SMS reminders
+     */
     suspend fun register(
         inviteCode: String,
         fullName: String,
         identifier: String,
         otp: String,
-        email: String?,
+        mobile: String?,
         password: String,
         employeeCode: String?,
     ): ApiResult<Session> {
@@ -146,11 +151,11 @@ class LrmsRepository private constructor(context: Context) {
             .put("invite_code", inviteCode.trim())
             .put("full_name", fullName.trim())
             .put("identifier", identifier.trim())
-            .put("identifier_type", if (type == "employee_code") "mobile" else type)
+            .put("identifier_type", if (type == "employee_code") "email" else type)
             .put("otp", otp.trim())
             .put("password", password)
             .merge(deviceFields())
-        email?.takeIf { it.isNotBlank() }?.let { body.put("email", it.trim()) }
+        mobile?.takeIf { it.isNotBlank() }?.let { body.put("mobile", it.trim()) }
         employeeCode?.takeIf { it.isNotBlank() }?.let {
             body.put("employee_code", it.trim())
             body.put("bc_code", it.trim())
