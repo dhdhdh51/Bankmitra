@@ -35,7 +35,7 @@ final class UploadController extends Controller
 
         [$scope, $params] = Auth::scopeSql('l.branch_id');
 
-        $this->view('uploads/index', [
+        $this->view('imports/index', [
             'pageTitle'   => 'Excel upload & allocation',
             'batches'     => $batches,
             'meta'        => $this->paginationMeta($total, $pagination),
@@ -58,7 +58,7 @@ final class UploadController extends Controller
     public function import(): void
     {
         if (!$this->request->isPost()) {
-            $this->redirect('uploads');
+            $this->redirect('imports');
             return;
         }
 
@@ -66,18 +66,18 @@ final class UploadController extends Controller
 
         $file = $this->request->file('sheet');
         if ($file === null) {
-            $this->redirect('uploads', 'danger', 'Choose a .xlsx or .csv file to upload.');
+            $this->redirect('imports', 'danger', 'Choose a .xlsx or .csv file to upload.');
             return;
         }
 
         if ((int) $file['error'] !== UPLOAD_ERR_OK) {
-            $this->redirect('uploads', 'danger', $this->uploadError((int) $file['error']));
+            $this->redirect('imports', 'danger', $this->uploadError((int) $file['error']));
             return;
         }
 
         $maxBytes = (int) Config::get('max_excel_bytes', 20 * 1024 * 1024);
         if ((int) $file['size'] > $maxBytes) {
-            $this->redirect('uploads', 'danger', sprintf(
+            $this->redirect('imports', 'danger', sprintf(
                 'The file is %.1f MB which exceeds the %.0f MB limit. Split it into smaller files.',
                 (int) $file['size'] / 1048576,
                 $maxBytes / 1048576
@@ -87,7 +87,7 @@ final class UploadController extends Controller
 
         $extension = strtolower(pathinfo((string) $file['name'], PATHINFO_EXTENSION));
         if (!in_array($extension, ['xlsx', 'csv', 'txt'], true)) {
-            $this->redirect('uploads', 'danger',
+            $this->redirect('imports', 'danger',
                 'Only .xlsx and .csv files are supported. If you have an old .xls file, open it in '
                 . 'Excel and use "Save As" -> "Excel Workbook (.xlsx)".');
             return;
@@ -106,7 +106,7 @@ final class UploadController extends Controller
         );
 
         if (!$result['ok']) {
-            $this->redirect('uploads', 'danger', $result['message']);
+            $this->redirect('imports', 'danger', $result['message']);
             return;
         }
 
@@ -116,7 +116,7 @@ final class UploadController extends Controller
             $message .= ' A CSV of the rejected rows is available from the batch list.';
         }
 
-        $this->redirect('uploads', $tone, $message);
+        $this->redirect('imports', $tone, $message);
     }
 
     /** Download the .xlsx import template. */
@@ -136,13 +136,13 @@ final class UploadController extends Controller
 
         $batch = Database::first('SELECT * FROM allocation_batches WHERE id = ? LIMIT 1', [$id]);
         if ($batch === null || $batch['error_report'] === null) {
-            $this->redirect('uploads', 'warning', 'No error report is available for that batch.');
+            $this->redirect('imports', 'warning', 'No error report is available for that batch.');
             return;
         }
 
         $absolute = PhotoStorageService::absolute($batch['error_report']);
         if ($absolute === null) {
-            $this->redirect('uploads', 'warning',
+            $this->redirect('imports', 'warning',
                 'The error report file is missing from disk (it may have been cleaned up).');
             return;
         }
@@ -154,7 +154,7 @@ final class UploadController extends Controller
     public function allocate(): void
     {
         if (!$this->request->isPost()) {
-            $this->redirect('uploads');
+            $this->redirect('imports');
             return;
         }
 
@@ -168,13 +168,13 @@ final class UploadController extends Controller
         $allocated = (new AllocationService())->distributeEqually($branchId > 0 ? $branchId : null);
 
         if ($allocated === 0) {
-            $this->redirect('uploads', 'info',
+            $this->redirect('imports', 'info',
                 'Nothing to allocate. Either every account already has a BC agent, or the '
                 . 'branches with unallocated accounts have no active BC agents.');
             return;
         }
 
-        $this->redirect('uploads', 'success',
+        $this->redirect('imports', 'success',
             $allocated . ' account(s) distributed evenly among the active BC agents of each branch.');
     }
 

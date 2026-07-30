@@ -83,8 +83,11 @@ set_error_handler(static function (int $no, string $str, string $file, int $line
 });
 
 set_exception_handler(static function (Throwable $e): void {
-    Lib\Logger::exception($e);
-    App\Core\ErrorRenderer::render($e);
+    // One reference, written to the log AND shown on the page, so "reference
+    // FE617E25" can actually be found by grepping storage/logs.
+    $reference = App\Core\ErrorRenderer::newReference();
+    Lib\Logger::exception($e, $reference);
+    App\Core\ErrorRenderer::render($e, $reference);
 });
 
 register_shutdown_function(static function (): void {

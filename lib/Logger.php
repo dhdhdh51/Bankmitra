@@ -35,12 +35,41 @@ final class Logger
         self::write('ERROR', $message, $context);
     }
 
-    public static function exception(Throwable $e): void
+    /**
+     * @param string|null $reference the same short code shown to the user, so a
+     *                               support message ("reference FE617E25") can be
+     *                               grepped straight out of the log
+     */
+    public static function exception(Throwable $e, ?string $reference = null): void
     {
-        self::write('ERROR', get_class($e) . ': ' . $e->getMessage(), [
-            'file'  => $e->getFile() . ':' . $e->getLine(),
-            'trace' => $e->getTraceAsString(),
-        ]);
+        $context = [];
+        if ($reference !== null) {
+            $context['ref'] = $reference;
+        }
+
+        // Request context: what the user was actually doing. The query string is
+        // deliberately dropped because it can carry tokens.
+        $method = $_SERVER['REQUEST_METHOD'] ?? null;
+        $uri = $_SERVER['REQUEST_URI'] ?? null;
+        if (is_string($uri)) {
+            $uri = explode('?', $uri, 2)[0];
+        }
+        if ($method !== null) {
+            $context['request'] = trim($method . ' ' . (string) $uri);
+        }
+
+        $context['file'] = $e->getFile() . ':' . $e->getLine();
+
+        // Root cause matters more than the wrapper for setup problems, where we
+        // deliberately replace the driver exception with a friendly one.
+        $previous = $e->getPrevious();
+        if ($previous !== null) {
+            $context['caused_by'] = get_class($previous) . ': ' . $previous->getMessage();
+        }
+
+        $context['trace'] = $e->getTraceAsString();
+
+        self::write('ERROR', get_class($e) . ': ' . $e->getMessage(), $context);
     }
 
     private static function write(string $level, string $message, array $context): void

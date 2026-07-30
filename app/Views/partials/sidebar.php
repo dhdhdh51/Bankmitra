@@ -25,7 +25,7 @@ $sections = [
         'items' => [
             ['label' => 'Customers', 'url' => 'customers', 'icon' => 'people', 'permission' => 'customers.view', 'match' => 'customers'],
             ['label' => 'Loan Accounts', 'url' => 'loans', 'icon' => 'journal-text', 'permission' => 'loans.view', 'match' => 'loans'],
-            ['label' => 'Excel Upload', 'url' => 'uploads', 'icon' => 'file-earmark-arrow-up', 'permission' => 'loans.allocate', 'match' => 'uploads'],
+            ['label' => 'Excel Upload', 'url' => 'imports', 'icon' => 'file-earmark-arrow-up', 'permission' => 'loans.allocate', 'match' => 'imports'],
         ],
     ],
     [

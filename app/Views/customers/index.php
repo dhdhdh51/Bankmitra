@@ -66,7 +66,7 @@ use App\Core\View;
         <div class="lrms-empty">
             <i class="bi bi-person-x"></i>
             No customers match. Import an allocation spreadsheet from
-            <a href="<?= View::e(View::url('uploads')) ?>">Excel Upload</a> to load your portfolio.
+            <a href="<?= View::e(View::url('imports')) ?>">Excel Upload</a> to load your portfolio.
         </div>
     <?php else: ?>
         <div class="table-responsive">

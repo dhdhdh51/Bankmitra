@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Lib;
 
 use App\Core\Config;
+use App\Core\SetupException;
 use RuntimeException;
 
 /**
@@ -36,10 +37,22 @@ final class Crypto
 
         $raw = (string) Config::get('app_key', '');
         if ($raw === '' || $raw === 'CHANGE_ME_64_HEX_CHARS') {
-            throw new RuntimeException(
-                'APP_KEY is not set. Generate one with: '
-                . 'php -r "echo bin2hex(random_bytes(32));" '
-                . 'and put it in config/config.php'
+            throw new SetupException(
+                'The encryption key (app_key) in config/config.php is still the '
+                . 'placeholder value, so LRMS cannot encrypt or read mobile numbers, '
+                . 'Aadhaar-type fields or stored API keys. Set it before signing in.',
+                'Encryption key is not set',
+                [
+                    'Generate a key. In cPanel > Terminal run: '
+                        . 'php -r "echo bin2hex(random_bytes(32));"'
+                        . '  - or create a file key.php containing '
+                        . '<?php echo bin2hex(random_bytes(32)); open it in your '
+                        . 'browser, copy the 64 characters, then DELETE key.php.',
+                    'Edit config/config.php and replace CHANGE_ME_64_HEX_CHARS with '
+                        . 'those 64 characters.',
+                    'Keep a copy of the key somewhere safe. If you change it after '
+                        . 'entering data, everything already encrypted becomes unreadable.',
+                ]
             );
         }
 
