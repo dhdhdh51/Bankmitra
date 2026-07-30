@@ -6,6 +6,7 @@ namespace App\Services;
 
 use App\Core\Audit;
 use App\Core\Database;
+use Lib\Crypto;
 use Lib\Logger;
 use Lib\Settings;
 
@@ -37,8 +38,52 @@ final class VisitService
      *   followup_created:bool
      * }
      */
-    public function create(array $input, array $photoFiles, string $signatureBase64, string $agentName): array
+    /**
+     * Allowed codes for the tick-box groups on the printed form. Anything the
+     * app sends that is not in these lists is dropped rather than stored, so a
+     * newer app cannot write junk into an older server.
+     */
+    private const NONPAYMENT_REASONS = [
+        'financial', 'crop_failure', 'cattle_loss', 'illness',
+        'unemployment', 'dispute', 'other_bank_loan', 'other',
+    ];
+
+    private const RECOMMENDATIONS = [
+        'recovery_good', 'followup_needed', 'legal_action',
+        'rc_issue', 'krm_ots', 'other',
+    ];
+
+    /**
+     * Keeps only known codes from a comma separated list, de-duplicated and in
+     * the order the form prints them.
+     *
+     * @param list<string> $allowed
+     */
+    private static function filterCodes(?string $raw, array $allowed): ?string
     {
+        if ($raw === null || trim($raw) === '') {
+            return null;
+        }
+        $sent = array_map('trim', explode(',', strtolower($raw)));
+        $kept = array_values(array_intersect($allowed, $sent));
+        return $kept === [] ? null : implode(',', $kept);
+    }
+
+    /** Restricts a value to an enum, mapping anything unexpected to null. */
+    private static function enumOrNull(?string $value, array $allowed): ?string
+    {
+        $value = $value === null ? '' : strtolower(trim($value));
+        return in_array($value, $allowed, true) ? $value : null;
+    }
+
+    public function create(
+        array $input,
+        array $photoFiles,
+        string $signatureBase64,
+        string $agentName,
+        string $borrowerSignatureBase64 = '',
+        array $photoTypes = []
+    ): array {
         $fail = static fn (string $code, string $message): array => [
             'ok' => false, 'code' => $code, 'message' => $message, 'visit_id' => null,
             'duplicate' => false, 'photos_saved' => 0, 'photo_errors' => [],
@@ -166,9 +211,32 @@ final class VisitService
             }
         }
 
+        // Section 13 of the printed form has TWO signature boxes. The borrower's
+        // one gets its own uid suffix so the two files cannot collide.
+        $borrowerSignaturePath = null;
+        if ($borrowerSignatureBase64 !== '') {
+            $borrowerSig = $storage->storeSignature(
+                $borrowerSignatureBase64,
+                $input['visit_uid'] . '-borrower'
+            );
+            if ($borrowerSig['ok']) {
+                $borrowerSignaturePath = $borrowerSig['relative'];
+            } else {
+                $photoErrors[] = 'Borrower signature: ' . $borrowerSig['error'];
+            }
+        }
+
         // ---- persist --------------------------------------------------------
         try {
-            $visitId = Database::transaction(function () use ($input, $loan, $distance, $storedPhotos, $signaturePath): int {
+            $visitId = Database::transaction(function () use (
+                $input,
+                $loan,
+                $distance,
+                $storedPhotos,
+                $signaturePath,
+                $borrowerSignaturePath,
+                $photoTypes
+            ): int {
                 $visitId = Database::insert('visits', [
                     'visit_uid'            => $input['visit_uid'],
                     'loan_id'              => (int) $loan['id'],
@@ -195,19 +263,63 @@ final class VisitService
                     'recommendation'       => $input['recommendation'],
                     'remarks'              => $input['remarks'],
                     'signature_path'       => $signaturePath,
+
+                    // ---- Central Bank BC FIELD VISIT REPORT fields ----------
+                    // 3. loan type
+                    'loan_type'            => self::enumOrNull($input['loan_type'] ?? null, ['ckcc', 'agl', 'dairy', 'shg', 'other']),
+                    'loan_type_other'      => $input['loan_type_other'] ?? null,
+                    // 4. current account status
+                    'account_status'       => self::enumOrNull($input['account_status'] ?? null, ['npa', 'ckcc_od2', 'krm_ots', 'other']),
+                    'account_status_other' => $input['account_status_other'] ?? null,
+                    'rc_issued'            => !empty($input['rc_issued']) ? 1 : 0,
+                    // 5. how contact was made
+                    'contact_status'       => self::enumOrNull($input['contact_status'] ?? null, ['borrower', 'family', 'not_found', 'phone', 'phone_off']),
+                    // The number actually reached is PII, so it is encrypted the
+                    // same way every other mobile in this schema is.
+                    'contact_mobile_enc'   => ($input['contact_mobile'] ?? '') !== ''
+                        ? Crypto::encrypt(Crypto::normalise((string) $input['contact_mobile'], 'mobile'))
+                        : null,
+                    'contact_mobile_last4' => ($input['contact_mobile'] ?? '') !== ''
+                        ? Crypto::last4((string) $input['contact_mobile'])
+                        : null,
+                    // 7. physical verification
+                    'borrower_alive'       => isset($input['borrower_alive']) && $input['borrower_alive'] !== null
+                        ? ($input['borrower_alive'] ? 1 : 0) : null,
+                    'residence_status'     => self::enumOrNull($input['residence_status'] ?? null, ['same', 'moved']),
+                    'income_source'        => self::enumOrNull($input['income_source'] ?? null, ['agri', 'dairy', 'job', 'business', 'labour', 'other']),
+                    'income_source_other'  => $input['income_source_other'] ?? null,
+                    // 9. willingness to pay
+                    'willing_to_pay'       => isset($input['willing_to_pay']) && $input['willing_to_pay'] !== null
+                        ? ($input['willing_to_pay'] ? 1 : 0) : null,
+                    'payment_plan'         => self::enumOrNull($input['payment_plan'] ?? null, ['interest', 'krm_ots']),
+                    // 10 + 11. tick-box groups
+                    'nonpayment_reasons'   => self::filterCodes($input['nonpayment_reasons'] ?? null, self::NONPAYMENT_REASONS),
+                    'nonpayment_other'     => $input['nonpayment_other'] ?? null,
+                    'recommendations'      => self::filterCodes($input['recommendations'] ?? null, self::RECOMMENDATIONS),
+                    // 13. borrower's signature or thumb impression
+                    'borrower_signature_path' => $borrowerSignaturePath,
+
                     'device_id'            => $input['device_id'],
                     'app_version'          => $input['app_version'],
                     'sync_source'          => $input['sync_source'],
                     'synced_at'            => date('Y-m-d H:i:s'),
                 ]);
 
-                foreach ($storedPhotos as $photo) {
+                foreach ($storedPhotos as $photoIndex => $photo) {
+                    // Section 12 asks WHICH evidence each photo is. The app tags
+                    // every capture; anything unrecognised falls back to 'house'
+                    // so an older app keeps working unchanged.
+                    $type = strtolower(trim((string) ($photoTypes[$photoIndex] ?? '')));
+                    if (!in_array($type, ['house', 'customer', 'document', 'selfie', 'other'], true)) {
+                        $type = 'house';
+                    }
+
                     Database::insert('visit_photos', [
                         'visit_id'    => $visitId,
                         'photo_uid'   => $photo['photo_uid'],
                         'file_path'   => $photo['relative'],
                         'thumb_path'  => $photo['thumb'] !== '' ? $photo['thumb'] : null,
-                        'photo_type'  => 'house',
+                        'photo_type'  => $type,
                         'latitude'    => $input['latitude'],
                         'longitude'   => $input['longitude'],
                         'captured_at' => $input['visited_at'],
@@ -248,6 +360,9 @@ final class VisitService
             }
             if ($signaturePath !== null) {
                 @unlink(UPLOAD_PATH . '/' . $signaturePath);
+            }
+            if ($borrowerSignaturePath !== null) {
+                @unlink(UPLOAD_PATH . '/' . $borrowerSignaturePath);
             }
 
             return $fail('server_error', 'The visit could not be saved. Nothing was recorded - please try again.');

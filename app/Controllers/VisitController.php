@@ -152,6 +152,74 @@ final class VisitController extends Controller
         ]);
     }
 
+    /**
+     * The printable Central Bank "BC FIELD VISIT REPORT", in Hindi.
+     *
+     * Rendered as HTML rather than through Lib\Pdf on purpose. Pdf.php uses the
+     * base-14 Type1 fonts with WinAnsi encoding, which cannot represent
+     * Devanagari at all; and getting Hindi right needs more than a font, it needs
+     * text shaping - matras reorder around the consonant, and conjuncts like
+     * क्ष and त्र are single glyphs. Writing a shaper from scratch would put
+     * broken Hindi on an official bank document.
+     *
+     * Every browser already contains a correct shaper. So the panel prints the
+     * form with @media print CSS sized for A4, and the operator uses
+     * Print > Save as PDF. Perfect Hindi, no font files shipped, nothing extra
+     * installed on shared hosting.
+     */
+    public function print(array $args): void
+    {
+        $id = (int) ($args['id'] ?? 0);
+        [$scope, $params] = Auth::scopeSql('v.branch_id', 'v.bc_id');
+        array_unshift($params, $id);
+
+        $visit = Database::first(
+            'SELECT v.*, l.account_number, l.outstanding_amount, l.overdue_amount,
+                    l.asset_class, l.npa_date, l.product_name,
+                    c.full_name, c.guardian_name, c.village, c.district,
+                    c.address_line, c.block, c.panchayat, c.state, c.pincode,
+                    c.mobile_enc, c.aadhaar_last4,
+                    br.name AS branch_name, br.code AS branch_code,
+                    bc.bc_code, u.full_name AS agent_name
+             FROM visits v
+             JOIN loans l ON l.id = v.loan_id
+             JOIN customers c ON c.id = v.customer_id
+             LEFT JOIN branches br ON br.id = v.branch_id
+             LEFT JOIN bc_agents bc ON bc.id = v.bc_id
+             LEFT JOIN users u ON u.id = v.user_id
+             WHERE v.id = ?' . $scope . ' LIMIT 1',
+            $params
+        );
+
+        if ($visit === null) {
+            $this->redirect('visits', 'warning', 'That visit was not found, or is outside your access scope.');
+            return;
+        }
+
+        // Reading a borrower's mobile is an audited event, exactly as it is on
+        // the customer profile screen.
+        Audit::log(
+            'visit.printed',
+            'visit',
+            $id,
+            'Printed the BC field visit report for A/c ' . $visit['account_number']
+        );
+
+        // 'print' is a bare layout: no sidebar, no topbar, nothing that would
+        // waste paper.
+        $this->view('visits/print', [
+            'pageTitle' => 'BC Field Visit Report - ' . $visit['account_number'],
+            'visit'     => $visit,
+            'mobile'    => \Lib\Crypto::decrypt($visit['mobile_enc'] ?? null),
+            'contactMobile' => \Lib\Crypto::decrypt($visit['contact_mobile_enc'] ?? null),
+            'photos'    => Database::all(
+                'SELECT * FROM visit_photos WHERE visit_id = ? ORDER BY id',
+                [$id]
+            ),
+            'organisation' => \Lib\Settings::getString('company.organisation', 'सेंट्रल बैंक ऑफ इंडिया'),
+        ], 'print');
+    }
+
     /** Branch Manager marks a visit as verified. */
     public function verify(array $args): void
     {
