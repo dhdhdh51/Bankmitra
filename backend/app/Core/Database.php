@@ -48,17 +48,64 @@ final class Database
             // Predictable behaviour regardless of what the host configured.
             self::$pdo->exec("SET sql_mode = 'STRICT_TRANS_TABLES,NO_ENGINE_SUBSTITUTION'");
         } catch (PDOException $e) {
-            // Do NOT expose credentials or the DSN to the browser.
+            // Do NOT expose credentials or the DSN to the browser. The driver
+            // message (which names the DB user) goes to the log only.
             Logger::error('Database connection failed: ' . $e->getMessage());
-            throw new RuntimeException(
-                'Database connection failed. Check config/config.php against '
-                . 'cPanel > MySQL Databases (host, db name, user, password).',
-                0,
+            throw new SetupException(
+                'LRMS could not connect to the MySQL database. The credentials in '
+                . 'config/config.php do not match what cPanel has.',
+                'Cannot connect to the database',
+                [
+                    'In cPanel > MySQL Databases, confirm the database name, the '
+                        . 'user name and that the user is assigned to the database '
+                        . 'with ALL PRIVILEGES.',
+                    'cPanel prefixes both names with your account, e.g. '
+                        . 'cpuser_lrms - use the full prefixed names in config.php.',
+                    'Re-type the password in config/config.php rather than pasting '
+                        . 'it, in case a stray space crept in.',
+                    'Still refused? A few hosts only expose MySQL over a unix '
+                        . 'socket. Ask support for the path and set '
+                        . "'unix_socket' => '/var/lib/mysql/mysql.sock' inside the "
+                        . "'db' array.",
+                    'The exact driver error is in storage/logs/app-'
+                        . date('Y-m-d') . '.log.',
+                ],
                 $e
             );
         }
 
         return self::$pdo;
+    }
+
+    /**
+     * Turn "table doesn't exist" into an actionable setup message.
+     *
+     * The database name is taken from our own config, not from the driver
+     * message, and no credentials are included - that is what makes this safe
+     * to show in production.
+     */
+    private static function schemaMissing(PDOException $e): SetupException
+    {
+        $dbName = (string) Config::get('db.name', '');
+
+        return new SetupException(
+            'LRMS connected to the database'
+            . ($dbName === '' ? '' : ' "' . $dbName . '"')
+            . ' successfully, but the tables are not there. The schema has not '
+            . 'been imported yet, so there is nothing for LRMS to read or write.',
+            'Database schema has not been imported',
+            [
+                'Open cPanel > phpMyAdmin and select the database'
+                    . ($dbName === '' ? '.' : ' "' . $dbName . '".'),
+                'Go to the Import tab, choose the file database/schema.sql from '
+                    . 'this installation, and click Import.',
+                'You should end up with 28 tables plus 2 views. Re-importing is '
+                    . 'safe - every statement uses IF NOT EXISTS / INSERT IGNORE.',
+                'Reload this page. Then sign in with ADMIN001 and the default '
+                    . 'password, and change it immediately.',
+            ],
+            $e
+        );
     }
 
     /** @param array<string|int,mixed> $params */
@@ -74,6 +121,14 @@ final class Database
                 // Parameter values may contain PII, so log only their shape.
                 'param_keys' => array_keys($params),
             ]);
+
+            // SQLSTATE 42S02 = base table or view not found. On a fresh install
+            // this means database/schema.sql was never imported. Say so plainly
+            // instead of letting a raw PDOException become an opaque 500.
+            if ($e->getCode() === '42S02') {
+                throw self::schemaMissing($e);
+            }
+
             throw $e;
         }
     }
