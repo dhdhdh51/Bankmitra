@@ -66,7 +66,10 @@ done
 
 # Carry over the deploy-branch-only files (README, .gitignore, patched
 # .htaccess) from the existing deploy branch so hand edits are not lost.
-DEPLOY_ONLY=(".gitignore" "READ-ME-FIRST.md" ".htaccess")
+# .htaccess is deliberately NOT here: backend/.htaccess is the single source
+# of truth and already carries the "database" deny entry the hosting layout
+# needs, so letting it sync stops the two copies drifting apart.
+DEPLOY_ONLY=(".gitignore" "READ-ME-FIRST.md")
 if git rev-parse --verify --quiet "$DEPLOY_BRANCH" >/dev/null; then
     for f in "${DEPLOY_ONLY[@]}"; do
         if git cat-file -e "$DEPLOY_BRANCH:$f" 2>/dev/null; then

@@ -222,6 +222,42 @@ class ApiClient private constructor(context: Context) {
         return stream?.use { it.readBytes().toString(Charsets.UTF_8) }.orEmpty()
     }
 
+    /**
+     * The API always answers JSON, so a non-JSON body means something in front of
+     * PHP replied instead. Blaming the server URL for all of them sent at least
+     * one deployment chasing the wrong thing after a hosting firewall started
+     * rejecting photo uploads, so each status now gets its own explanation and a
+     * snippet of whatever actually came back.
+     */
+    private fun describeNonJson(status: Int, body: String): String {
+        val snippet = body
+            .replace(Regex("<[^>]*>"), " ")
+            .replace(Regex("\\s+"), " ")
+            .trim()
+            .take(160)
+
+        val cause = when (status) {
+            403 -> "The hosting firewall (mod_security or a WAF) rejected the request " +
+                "before it reached LRMS. This usually hits photo uploads. In cPanel open " +
+                "ModSecurity for this domain and disable the rule that fired, or ask " +
+                "support to whitelist it."
+            401 -> "The server refused the request without a reply from LRMS. Some hosts " +
+                "strip the Authorization header - ask support to allow it through."
+            404 -> "That address does not exist on the server. Check the server URL and " +
+                "that the LRMS files really are in public_html."
+            405 -> "The server refused this HTTP method. Some hosts block anything other " +
+                "than GET and POST."
+            413 -> "The photo was larger than the server accepts. Raise " +
+                "upload_max_filesize and post_max_size, or retake the photo."
+            in 500..599 -> "The server hit an internal error before LRMS could answer. " +
+                "The detail is in storage/logs on the server."
+            else -> "Check that the server URL points at the LRMS API."
+        }
+
+        return "The server sent a response the app could not understand (HTTP $status). " +
+            cause + if (snippet.isEmpty()) "" else "\n\nServer said: $snippet"
+    }
+
     private fun parseEnvelope(status: Int, body: String): ApiResult<ApiData> {
         if (body.isBlank()) {
             return ApiResult.Failure(
@@ -235,8 +271,7 @@ class ApiClient private constructor(context: Context) {
         } catch (e: JSONException) {
             return ApiResult.Failure(
                 code = ErrorCodes.CLIENT_BAD_RESPONSE,
-                message = "The server sent a response the app could not understand " +
-                    "(HTTP $status). Check that the server URL points at the LRMS API.",
+                message = describeNonJson(status, body),
                 httpStatus = status,
             )
         }
