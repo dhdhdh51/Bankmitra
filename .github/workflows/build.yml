@@ -202,7 +202,14 @@ jobs:
           SIZE_BYTES=$(stat -c%s "../dist/$FINAL")
           SIZE_MB=$(awk "BEGIN {printf \"%.2f\", $SIZE_BYTES/1048576}")
 
+          # A second copy under a FIXED name, so the rolling prerelease in step
+          # 9b always exposes the same download URL. The run-numbered name above
+          # is what the artifact uses, because that one benefits from being
+          # unique per build.
+          cp "$FOUND" "../dist/LRMS-latest.apk"
+
           echo "path=dist/$FINAL"    >> "$GITHUB_OUTPUT"
+          echo "stable_path=dist/LRMS-latest.apk" >> "$GITHUB_OUTPUT"
           echo "name=$FINAL"         >> "$GITHUB_OUTPUT"
           echo "size_mb=$SIZE_MB"    >> "$GITHUB_OUTPUT"
           echo "source=$FOUND"       >> "$GITHUB_OUTPUT"
@@ -218,6 +225,52 @@ jobs:
           path: ${{ steps.apk.outputs.path }}
           if-no-files-found: error
           retention-days: 30
+
+      # ---------------------------------------------------------------
+      # 9b. Also publish the newest APK as a rolling "latest" prerelease.
+      #
+      # WHY, when step 9 already uploaded an artifact:
+      # a run artifact is a ZIP and downloading it REQUIRES being signed in to
+      # GitHub. On a phone that gives you a .zip you cannot install, which is a
+      # miserable way to get a test build onto a handset. A release asset is a
+      # direct .apk link that needs no login and no unzipping.
+      #
+      # The tag is moved to the newest build every time, so the download link
+      # never changes:
+      #   https://github.com/OWNER/REPO/releases/latest/download/LRMS-latest.apk
+      #
+      # Skipped for tag builds - step 10 makes the real, permanent release then.
+      # ---------------------------------------------------------------
+      - name: Publish rolling latest prerelease
+        if: ${{ !startsWith(github.ref, 'refs/tags/') }}
+        continue-on-error: true
+        uses: softprops/action-gh-release@v3.0.2
+        with:
+          tag_name: latest
+          target_commitish: ${{ github.sha }}
+          name: Latest build (${{ steps.signing.outputs.variant }})
+          prerelease: true
+          # Replace the old asset instead of appending a second one.
+          files: ${{ steps.apk.outputs.stable_path }}
+          body: |
+            Newest LRMS APK, rebuilt on every push. **Not a stable release.**
+
+            | | |
+            |---|---|
+            | Variant | `${{ steps.signing.outputs.variant }}` |
+            | Version | `${{ steps.version.outputs.name }}` (code `${{ steps.version.outputs.code }}`) |
+            | Size | ${{ steps.apk.outputs.size_mb }} MB |
+            | Build | #${{ github.run_number }} |
+            | Branch | `${{ github.ref_name }}` |
+            | Commit | `${{ github.sha }}` |
+
+            ### Install on a phone
+            Tap **LRMS-latest.apk** below. No sign-in needed, and it is a real
+            `.apk`, not a zip. Android will ask you to allow installing from
+            unknown sources.
+
+            Always uninstall the previous build first if the app misbehaves after
+            an update.
 
       # ---------------------------------------------------------------
       # 10. On a v* tag, also attach the APK to a GitHub Release.
@@ -275,7 +328,17 @@ jobs:
               echo "\`KEY_PASSWORD\` repository secrets to get a signed release instead."
             fi
             echo ""
-            echo "**Download:** open this run and scroll to the *Artifacts* section."
+            echo "### Getting the APK onto a phone"
+            echo ""
+            echo "**Easiest — direct link, no sign-in, not a zip:**"
+            echo ""
+            echo "<https://github.com/${{ github.repository }}/releases/latest/download/LRMS-latest.apk>"
+            echo ""
+            echo "That link always serves the newest build, so it is worth bookmarking."
+            echo ""
+            echo "The *Artifacts* section of this run has the same APK, but GitHub"
+            echo "wraps artifacts in a **zip** and only lets signed-in users download"
+            echo "them — which is why the release link above exists."
           } >> "$GITHUB_STEP_SUMMARY"
 
       # ---------------------------------------------------------------
